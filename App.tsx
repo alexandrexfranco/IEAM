@@ -2,21 +2,18 @@
 import React, { useState } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import LoginModal from './components/LoginModal';
 import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
+import LoginPage from './pages/LoginPage';
+import MinistryPage from './pages/MinistryPage';
+import SchedulePage from './pages/SchedulePage';
+import ChurchInfoPage from './pages/ChurchInfoPage';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export type Page = 'home' | 'about';
-
 const App: React.FC = () => {
-  const [isLoginModalOpen, setLoginModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState<Page>('home');
+  const [currentPage, setCurrentPage] = useState<string>('home');
 
-  const openLoginModal = () => setLoginModalOpen(true);
-  const closeLoginModal = () => setLoginModalOpen(false);
-
-  const handleNavigate = (page: Page, section?: string) => {
+  const handleNavigate = (page: string, section?: string) => {
     if (currentPage !== page) {
       setCurrentPage(page);
     }
@@ -34,6 +31,29 @@ const App: React.FC = () => {
     }, 100);
   };
 
+  const renderPage = () => {
+    if (currentPage.startsWith('ministry/')) {
+        const slug = currentPage.split('/')[1];
+        return <MinistryPage slug={slug} />;
+    }
+    if (currentPage.startsWith('igreja/')) {
+        const slug = currentPage.split('/')[1];
+        return <ChurchInfoPage slug={slug} />;
+    }
+    switch (currentPage) {
+        case 'home':
+            return <HomePage />;
+        case 'about':
+            return <AboutPage />;
+        case 'login':
+            return <LoginPage onNavigate={handleNavigate} />;
+        case 'schedule':
+            return <SchedulePage />;
+        default:
+            return <HomePage />;
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -41,7 +61,7 @@ const App: React.FC = () => {
       transition={{ duration: 0.8 }}
       className="bg-brand-dark"
     >
-      <Header onLoginClick={openLoginModal} onNavigate={handleNavigate} />
+      <Header onNavigate={handleNavigate} />
       <main>
         <AnimatePresence mode="wait">
             <motion.div
@@ -51,15 +71,11 @@ const App: React.FC = () => {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.5 }}
             >
-                {currentPage === 'home' && <HomePage />}
-                {currentPage === 'about' && <AboutPage />}
+                {renderPage()}
             </motion.div>
         </AnimatePresence>
       </main>
       <Footer />
-      <AnimatePresence>
-        {isLoginModalOpen && <LoginModal onClose={closeLoginModal} />}
-      </AnimatePresence>
     </motion.div>
   );
 };
