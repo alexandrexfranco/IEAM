@@ -8,6 +8,7 @@ import LoginPage from './pages/LoginPage';
 import MinistryPage from './pages/MinistryPage';
 import SchedulePage from './pages/SchedulePage';
 import ChurchInfoPage from './pages/ChurchInfoPage';
+import DonationPage from './pages/DonationPage';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const App: React.FC = () => {
@@ -49,6 +50,8 @@ const App: React.FC = () => {
             return <LoginPage onNavigate={handleNavigate} />;
         case 'schedule':
             return <SchedulePage />;
+        case 'donation':
+            return <DonationPage />;
         default:
             return <HomePage />;
     }

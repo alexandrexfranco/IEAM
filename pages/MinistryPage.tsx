@@ -2,13 +2,15 @@
 import React, { useState, useEffect } from 'react';
 import { getMinistryBySlug } from '../services/supabaseService';
 import { Ministry } from '../types';
-import { motion } from 'framer-motion';
+// FIX: Add Variants to import
+import { motion, Variants } from 'framer-motion';
 
 interface MinistryPageProps {
   slug: string;
 }
 
-const sectionVariants = {
+// FIX: Explicitly type variants with Variants to fix ease property type error.
+const sectionVariants: Variants = {
   hidden: { opacity: 0, y: 50 },
   visible: { 
     opacity: 1, 

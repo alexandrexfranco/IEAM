@@ -1,8 +1,10 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
+// FIX: Add Variants to import
+import { motion, Variants } from 'framer-motion';
 
-const sectionVariants = {
+// FIX: Explicitly type variants with Variants to fix ease property type error.
+const sectionVariants: Variants = {
   hidden: { opacity: 0, y: 50 },
   visible: { 
     opacity: 1, 
@@ -11,7 +13,8 @@ const sectionVariants = {
   },
 };
 
-const itemVariants = {
+// FIX: Explicitly type variants with Variants to fix ease property type error.
+const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
 }

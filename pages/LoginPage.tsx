@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+// FIX: Add Variants to import
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import Button from '../components/Button';
 import { signInWithPassword, signUp } from '../services/supabaseService';
 
@@ -8,7 +9,8 @@ interface LoginPageProps {
     onNavigate: (page: string) => void;
 }
 
-const formVariants = {
+// FIX: Explicitly type variants with Variants to fix ease property type error.
+const formVariants: Variants = {
     hidden: { opacity: 0, x: 50 },
     visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: 'easeInOut' } },
     exit: { opacity: 0, x: -50, transition: { duration: 0.5, ease: 'easeInOut' } }

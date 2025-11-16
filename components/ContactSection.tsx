@@ -53,9 +53,9 @@ const ContactSection: React.FC = () => {
           >
              <div>
                  <h3 className="font-bold text-lg text-brand-gold mb-2">Endereço</h3>
-                 <p>Rua da Fé, 123</p>
-                 <p>Bairro da Esperança, Cidade - UF</p>
-                 <p>CEP: 12345-678</p>
+                 <p>Rua João Rodrigues Filho, S/Nº</p>
+                 <p>Morrinhos, Cariacica Sede - ES</p>
+                 <p>CEP: 29156-000</p>
              </div>
              <div>
                  <h3 className="font-bold text-lg text-brand-gold mb-2">Email</h3>
@@ -63,7 +63,7 @@ const ContactSection: React.FC = () => {
              </div>
              <div>
                  <h3 className="font-bold text-lg text-brand-gold mb-2">Telefone</h3>
-                 <p>(11) 98765-4321</p>
+                 <p>(11) 98765-****</p>
              </div>
           </motion.div>
         </div>

@@ -155,8 +155,11 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
                  <a href="#eventos" onClick={(e) => handleNavClick(e, 'home', '#eventos')} className="font-body text-sm font-medium text-brand-light hover:text-brand-gold transition-colors duration-300 cursor-pointer">Eventos</a>
                  <a href="#contato" onClick={(e) => handleNavClick(e, 'home', '#contato')} className="font-body text-sm font-medium text-brand-light hover:text-brand-gold transition-colors duration-300 cursor-pointer">Contato</a>
               </nav>
-              <div>
-                <Button onClick={() => onNavigate('login')}>
+              <div className="flex items-center space-x-4">
+                <Button onClick={() => onNavigate('donation')} variant="solid">
+                  Doar
+                </Button>
+                <Button onClick={() => onNavigate('login')} variant="outline">
                   Login
                 </Button>
               </div>
@@ -236,8 +239,9 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
               <a href="#eventos" onClick={(e) => handleNavClick(e, 'home', '#eventos')} className="text-brand-light hover:text-brand-gold transition-colors">Eventos</a>
               <a href="#contato" onClick={(e) => handleNavClick(e, 'home', '#contato')} className="text-brand-light hover:text-brand-gold transition-colors">Contato</a>
 
-              <div className="pt-8">
-                <Button onClick={() => handleNavClick(null, 'login')}>Login</Button>
+              <div className="pt-8 flex flex-col space-y-4">
+                <Button onClick={() => handleNavClick(null, 'donation')} variant="solid">Doar</Button>
+                <Button onClick={() => handleNavClick(null, 'login')} variant="outline">Login</Button>
               </div>
             </nav>
           </motion.div>
