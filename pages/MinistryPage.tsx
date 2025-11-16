@@ -51,7 +51,7 @@ const MinistryPage: React.FC<MinistryPageProps> = ({ slug }) => {
   return (
     <div className="pt-20">
       {/* Page Header */}
-      <section className="relative py-32 md:py-48 text-center bg-brand-dark flex items-center justify-center">
+      <section className="relative py-28 sm:py-32 md:py-40 text-center bg-brand-dark flex items-center justify-center">
         <div className="absolute inset-0 bg-black opacity-40 z-10"></div>
         <img
           src={ministry.bannerImage}
@@ -64,7 +64,7 @@ const MinistryPage: React.FC<MinistryPageProps> = ({ slug }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <h1 className="font-heading text-5xl md:text-7xl font-bold text-brand-light">
+          <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold text-brand-light">
             {ministry.title}
           </h1>
           <p className="font-body text-lg md:text-xl text-brand-gold mt-2">Conheça nosso ministério</p>
@@ -72,7 +72,7 @@ const MinistryPage: React.FC<MinistryPageProps> = ({ slug }) => {
       </section>
 
       {/* Content Section */}
-      <section id="missao" className="py-20 md:py-24 bg-brand-dark">
+      <section id="missao" className="py-16 sm:py-20 bg-brand-dark">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
                 initial="hidden"
@@ -83,7 +83,7 @@ const MinistryPage: React.FC<MinistryPageProps> = ({ slug }) => {
                 <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-12">
                     {/* Description */}
                     <div className="md:w-2/3 text-lg text-brand-light/90 space-y-4">
-                        <h2 className="text-4xl font-heading font-bold text-brand-gold mb-6">
+                        <h2 className="text-3xl sm:text-4xl font-heading font-bold text-brand-gold mb-6">
                             Nossa Missão
                         </h2>
                         {ministry.description.map((paragraph, index) => (

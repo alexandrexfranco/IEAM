@@ -41,7 +41,7 @@ const ChurchInfoPage: React.FC<ChurchInfoPageProps> = ({ slug }) => {
 
   const renderContent = (item: { type: 'heading' | 'paragraph'; text: string; }, index: number) => {
     if (item.type === 'heading') {
-        return <h2 key={index} className="text-3xl font-heading font-bold text-brand-gold mt-8 mb-4">{item.text}</h2>
+        return <h2 key={index} className="text-2xl sm:text-3xl font-heading font-bold text-brand-gold mt-8 mb-4">{item.text}</h2>
     }
     return <p key={index}>{item.text}</p>
   }
@@ -49,7 +49,7 @@ const ChurchInfoPage: React.FC<ChurchInfoPageProps> = ({ slug }) => {
   return (
     <div className="pt-20">
       {/* Page Header */}
-      <section className="relative py-32 md:py-48 text-center bg-brand-dark flex items-center justify-center">
+      <section className="relative py-28 sm:py-32 md:py-40 text-center bg-brand-dark flex items-center justify-center">
         <div className="absolute inset-0 bg-black opacity-40 z-10"></div>
         <img
           src={info.bannerImage}
@@ -62,14 +62,14 @@ const ChurchInfoPage: React.FC<ChurchInfoPageProps> = ({ slug }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <h1 className="font-heading text-5xl md:text-7xl font-bold text-brand-light">
+          <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold text-brand-light">
             {info.title}
           </h1>
         </motion.div>
       </section>
 
       {/* Content Section */}
-      <section className="py-20 md:py-24 bg-brand-dark">
+      <section className="py-16 sm:py-20 bg-brand-dark">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
                 className="max-w-4xl mx-auto text-lg text-brand-light/90 space-y-4"

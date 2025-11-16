@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 
 const ContactSection: React.FC = () => {
   return (
-    <section id="contato" className="py-20 md:py-32 bg-brand-dark">
+    <section id="contato" className="py-16 sm:py-20 md:py-28 bg-brand-dark">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
@@ -13,7 +13,7 @@ const ContactSection: React.FC = () => {
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.8 }}
         >
-          <h2 className="text-4xl md:text-5xl font-heading font-bold text-center text-brand-gold mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-center text-brand-gold mb-4">
             Entre em Contato
           </h2>
           <div className="w-24 h-1 bg-brand-gold mx-auto mb-12"></div>

@@ -6,7 +6,7 @@ const Footer: React.FC = () => {
   return (
     <footer className="bg-black/50 border-t border-brand-gold/20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+        <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-center md:text-left">
           <Logo />
           <p className="text-sm text-brand-light/70">
             &copy; {new Date().getFullYear()} Igreja Evangélica Apostólica Missionária. Todos os direitos reservados.

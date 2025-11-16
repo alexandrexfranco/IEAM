@@ -74,7 +74,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
     <div className="min-h-screen flex items-center justify-center bg-brand-dark pt-24 pb-12 px-4">
       <div className="w-full max-w-md bg-brand-dark border-2 border-brand-gold/30 rounded-lg shadow-2xl p-8 space-y-8">
         <div>
-          <h2 className="text-4xl font-heading font-bold text-center text-brand-gold">
+          <h2 className="text-3xl sm:text-4xl font-heading font-bold text-center text-brand-gold">
             Área de Membros
           </h2>
         </div>

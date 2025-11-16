@@ -37,7 +37,7 @@ const HeroSection: React.FC = () => {
       />
       <div className="relative z-20 container mx-auto px-4 text-white">
         <motion.h1 
-          className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold text-brand-light mb-4"
+          className="font-heading text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-brand-light mb-4"
           variants={sentence}
           initial="hidden"
           animate="visible"
@@ -49,7 +49,7 @@ const HeroSection: React.FC = () => {
           ))}
         </motion.h1>
         <motion.p 
-            className="font-body text-lg md:text-2xl text-brand-gold"
+            className="font-body text-base sm:text-lg md:text-2xl text-brand-gold"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 2, duration: 0.8 }}

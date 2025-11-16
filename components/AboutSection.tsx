@@ -13,7 +13,7 @@ const sectionVariants = {
 
 const AboutSection: React.FC = () => {
   return (
-    <section id="sobre" className="py-20 md:py-32 bg-brand-dark">
+    <section id="sobre" className="py-16 sm:py-20 md:py-28 bg-brand-dark">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial="hidden"
@@ -21,7 +21,7 @@ const AboutSection: React.FC = () => {
           viewport={{ once: true, amount: 0.3 }}
           variants={sectionVariants}
         >
-          <h2 className="text-4xl md:text-5xl font-heading font-bold text-center text-brand-gold mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-center text-brand-gold mb-4">
             Nossa Missão
           </h2>
           <div className="w-24 h-1 bg-brand-gold mx-auto mb-12"></div>

@@ -36,7 +36,7 @@ const SchedulePage: React.FC = () => {
     return (
         <div className="pt-20">
             {/* Page Header */}
-            <section className="relative py-32 md:py-48 text-center bg-brand-dark flex items-center justify-center">
+            <section className="relative py-28 sm:py-32 md:py-40 text-center bg-brand-dark flex items-center justify-center">
                 <div className="absolute inset-0 bg-black opacity-40 z-10"></div>
                 <img
                 src="https://images.pexels.com/photos/1054397/pexels-photo-1054397.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
@@ -49,7 +49,7 @@ const SchedulePage: React.FC = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.2 }}
                 >
-                    <h1 className="font-heading text-5xl md:text-7xl font-bold text-brand-light">
+                    <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold text-brand-light">
                         Programação Semanal
                     </h1>
                     <p className="font-body text-lg md:text-xl text-brand-gold mt-2">Nossos encontros de fé e comunhão</p>
@@ -57,7 +57,7 @@ const SchedulePage: React.FC = () => {
             </section>
 
             {/* Schedule Section */}
-            <section className="py-20 md:py-24 bg-brand-dark">
+            <section className="py-16 sm:py-20 bg-brand-dark">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     {loading ? (
                         <p className="text-center text-brand-gold text-xl">Carregando programação...</p>

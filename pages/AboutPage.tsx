@@ -20,7 +20,7 @@ const AboutPage: React.FC = () => {
   return (
     <div className="pt-20"> {/* Padding to offset fixed header */}
       {/* Page Header */}
-      <section className="relative py-32 md:py-48 text-center bg-brand-dark flex items-center justify-center">
+      <section className="relative py-28 sm:py-32 md:py-40 text-center bg-brand-dark flex items-center justify-center">
         <div className="absolute inset-0 bg-black opacity-40 z-10"></div>
         <img
           src="https://images.pexels.com/photos/212269/pexels-photo-212269.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
@@ -33,15 +33,15 @@ const AboutPage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <h1 className="font-heading text-5xl md:text-7xl font-bold text-brand-light">
+          <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold text-brand-light">
             Sobre Nós
           </h1>
-          <p className="font-body text-lg md:text-xl text-brand-gold mt-2">Conheça nossa história e missão</p>
+          <p className="font-body text-base sm:text-lg md:text-xl text-brand-gold mt-2">Conheça nossa história e missão</p>
         </motion.div>
       </section>
 
       {/* Nossa Missão Section */}
-      <section id="missao" className="py-20 md:py-24 bg-brand-dark">
+      <section id="missao" className="py-16 sm:py-20 bg-brand-dark">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
                 initial="hidden"
@@ -50,7 +50,7 @@ const AboutPage: React.FC = () => {
                 variants={sectionVariants}
                 className="text-center"
             >
-                <h2 className="text-4xl md:text-5xl font-heading font-bold text-brand-gold mb-4">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-brand-gold mb-4">
                     Nossa Missão
                 </h2>
                 <div className="w-24 h-1 bg-brand-gold mx-auto mb-12"></div>
@@ -92,7 +92,7 @@ const AboutPage: React.FC = () => {
       </section>
       
       {/* Nossa História Section */}
-      <section id="historia" className="py-20 md:py-24 bg-brand-dark/95">
+      <section id="historia" className="py-16 sm:py-20 bg-brand-dark/95">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
                 initial="hidden"
@@ -101,7 +101,7 @@ const AboutPage: React.FC = () => {
                 variants={sectionVariants}
                 className="text-center"
             >
-                <h2 className="text-4xl md:text-5xl font-heading font-bold text-brand-gold mb-4">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-brand-gold mb-4">
                     Nossa História
                 </h2>
                 <div className="w-24 h-1 bg-brand-gold mx-auto mb-12"></div>
@@ -125,7 +125,7 @@ const AboutPage: React.FC = () => {
       </section>
 
       {/* Nossos Pastores Section */}
-       <section id="lideranca" className="py-20 md:py-24 bg-brand-dark">
+       <section id="lideranca" className="py-16 sm:py-20 bg-brand-dark">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
                 initial="hidden"
@@ -134,7 +134,7 @@ const AboutPage: React.FC = () => {
                 variants={sectionVariants}
                 className="text-center"
             >
-                <h2 className="text-4xl md:text-5xl font-heading font-bold text-brand-gold mb-4">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-brand-gold mb-4">
                     Nossa Liderança
                 </h2>
                 <div className="w-24 h-1 bg-brand-gold mx-auto mb-12"></div>
