@@ -1,4 +1,3 @@
-
 export interface ChurchEvent {
   id: number;
   title: string;
@@ -40,4 +39,13 @@ export interface ChurchInfo {
     type: 'heading' | 'paragraph';
     text: string;
   }>;
+}
+
+export interface Congregation {
+  id: number;
+  name: string;
+  address: string;
+  pastor: string;
+  schedule: string;
+  mapUrl: string;
 }

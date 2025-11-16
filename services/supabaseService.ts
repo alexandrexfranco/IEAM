@@ -1,5 +1,4 @@
-
-import { ChurchEvent, Ministry, ChurchService, ChurchInfo } from '../types';
+import { ChurchEvent, Ministry, ChurchService, ChurchInfo, Congregation } from '../types';
 
 // --- MOCK DATA ---
 const mockEvents: ChurchEvent[] = [
@@ -241,9 +240,37 @@ export const churchInfoData: ChurchInfo[] = [
             { type: 'paragraph', text: 'A IEAM tem por finalidade prestar culto a Deus, pregar o evangelho de Nosso Senhor Jesus Cristo, promover o ensino das Escrituras Sagradas, e desenvolver atividades de assistência social e beneficência.' },
             { type: 'paragraph', text: '[... O restante do estatuto pode ser detalhado aqui. Este é um conteúdo de exemplo ...]' }
         ]
+    },
+    {
+        id: '7',
+        slug: 'congregacoes',
+        name: 'Congregações',
+        title: 'Nossas Congregações',
+        bannerImage: 'https://images.pexels.com/photos/1750275/pexels-photo-1750275.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        content: [
+            { type: 'paragraph', text: 'Além da nossa sede, a IEAM se estende por outras localidades, levando a Palavra de Deus a mais corações. Conheça nossas congregações.' },
+        ]
     }
 ];
 
+export const congregationsData: Congregation[] = [
+    {
+      id: 1,
+      name: 'Congregação de Porto Belo',
+      address: 'Rua Amélia Schwab Sarmento, 305 - Porto Belo - ES',
+      pastor: 'Ev. Marcos Pereira',
+      schedule: 'Cultos às Segundas (19:30), Quintas (19:30) e Domingo às (18:00)',
+      mapUrl: 'https://www.google.com/maps/embed?pb=!3m2!1spt-BR!2sbr!4v1763319976871!5m2!1spt-BR!2sbr!6m8!1m7!1s__WOQOC7Esbec6lEYoC3YA!2m2!1d-20.27390757085691!2d-40.39819518181582!3f122.72783844898606!4f-13.689183287111348!5f0.7820865974627469',
+    },
+    {
+      id: 2,
+      name: 'Congregação de Jardim Camburi',
+      address: 'Av. das Palmeiras, 456, Jardim Camburi - ES',
+      pastor: 'Pb. Antônio Carlos',
+      schedule: 'Cultos às Quintas (19:30) e Domingos (18:30)',
+      mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3742.111166318354!2d-40.33777588507963!3d-20.2819279864239!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xb81e259b8a3f5d%3A0x33b8f445f14e6b7!2sPra%C3%A7a%20dos%20Namorados!5e0!3m2!1spt-BR!2sbr!4v1620843370014!5m2!1spt-BR!2sbr'
+    },
+  ];
 
 // --- MOCK API FUNCTIONS ---
 
@@ -287,6 +314,17 @@ export const getSchedule = async (): Promise<ChurchService[]> => {
     await new Promise(resolve => setTimeout(resolve, 500));
     console.log('Schedule fetched successfully.');
     return scheduleData;
+}
+
+/**
+ * Simulates fetching the congregations.
+ * @returns A promise that resolves to an array of Congregation objects.
+ */
+export const getCongregations = async (): Promise<Congregation[]> => {
+    console.log('Fetching congregations...');
+    await new Promise(resolve => setTimeout(resolve, 500));
+    console.log('Congregations fetched successfully.');
+    return congregationsData;
 }
 
 

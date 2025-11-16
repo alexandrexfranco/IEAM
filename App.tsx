@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -9,6 +8,7 @@ import MinistryPage from './pages/MinistryPage';
 import SchedulePage from './pages/SchedulePage';
 import ChurchInfoPage from './pages/ChurchInfoPage';
 import DonationPage from './pages/DonationPage';
+import CongregationsPage from './pages/CongregationsPage';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const App: React.FC = () => {
@@ -36,6 +36,9 @@ const App: React.FC = () => {
     if (currentPage.startsWith('ministry/')) {
         const slug = currentPage.split('/')[1];
         return <MinistryPage slug={slug} />;
+    }
+    if (currentPage === 'igreja/congregacoes') {
+        return <CongregationsPage />;
     }
     if (currentPage.startsWith('igreja/')) {
         const slug = currentPage.split('/')[1];
