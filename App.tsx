@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -20,7 +19,7 @@ const App: React.FC = () => {
     if (currentPage !== page) {
       setCurrentPage(page);
     }
-    
+
     // Use a timeout to ensure the page has re-rendered before scrolling
     setTimeout(() => {
       if (section) {
@@ -36,32 +35,32 @@ const App: React.FC = () => {
 
   const renderPage = () => {
     if (currentPage.startsWith('ministry/')) {
-        const slug = currentPage.split('/')[1];
-        return <MinistryPage slug={slug} />;
+      const slug = currentPage.split('/')[1];
+      return <MinistryPage slug={slug} />;
     }
     if (currentPage === 'igreja/congregacoes') {
-        return <CongregationsPage />;
+      return <CongregationsPage />;
     }
     if (currentPage.startsWith('igreja/')) {
-        const slug = currentPage.split('/')[1];
-        return <ChurchInfoPage slug={slug} />;
+      const slug = currentPage.split('/')[1];
+      return <ChurchInfoPage slug={slug} />;
     }
     switch (currentPage) {
-        case 'home':
-            return <HomePage />;
-        case 'about':
-            return <AboutPage />;
-        case 'login':
-            return <LoginPage onNavigate={handleNavigate} />;
-        case 'schedule':
-            return <SchedulePage />;
-        case 'donation':
-            return <DonationPage />;
-        case 'admin/dashboard':
-        case 'admin/events': // Fallback for legacy link
-            return <AdminDashboardPage />;
-        default:
-            return <HomePage />;
+      case 'home':
+        return <HomePage />;
+      case 'about':
+        return <AboutPage />;
+      case 'login':
+        return <LoginPage onNavigate={handleNavigate} />;
+      case 'schedule':
+        return <SchedulePage />;
+      case 'donation':
+        return <DonationPage />;
+      case 'admin/dashboard':
+      case 'admin/events': // Fallback for legacy link
+        return <AdminDashboardPage />;
+      default:
+        return <HomePage />;
     }
   };
 
@@ -75,15 +74,15 @@ const App: React.FC = () => {
       <Header onNavigate={handleNavigate} />
       <main>
         <AnimatePresence mode="wait">
-            <motion.div
-                key={currentPage}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5 }}
-            >
-                {renderPage()}
-            </motion.div>
+          <motion.div
+            key={currentPage}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            {renderPage()}
+          </motion.div>
         </AnimatePresence>
       </main>
       <Footer />

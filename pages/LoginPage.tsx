@@ -38,6 +38,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
       const { user, error: authError } = await signInWithPassword(loginEmail, loginPassword);
       if (authError) throw new Error(authError);
       if (user) {
+<<<<<<< HEAD
         if (user.role === 'admin') {
             alert(`Bem-vindo, Administrador!`);
             onNavigate('admin/dashboard');
@@ -45,6 +46,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
             alert(`Bem-vindo, ${user.email}!`);
             onNavigate('home');
         }
+=======
+        alert(`Bem-vindo, ${user.email}!`);
+        onNavigate('home');
+>>>>>>> 8a70d01c6dfa90d1c0321f0149df76b37b1a5a4b
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Ocorreu um erro desconhecido.');
@@ -110,7 +115,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
                         <input type="password" placeholder="Senha" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} className={inputStyles} required />
                         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
                         <Button type="submit" className="w-full" disabled={loading}>{loading ? 'Entrando...' : 'Entrar'}</Button>
+<<<<<<< HEAD
                         <p className="text-xs text-center text-brand-light/50 mt-4">Admin: admin@ieam.com.br / admin123</p>
+=======
+>>>>>>> 8a70d01c6dfa90d1c0321f0149df76b37b1a5a4b
                     </form>
                 </motion.div>
             ) : (
@@ -132,4 +140,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
   );
 };
 
+<<<<<<< HEAD
 export default LoginPage;
+=======
+export default LoginPage;
+>>>>>>> 8a70d01c6dfa90d1c0321f0149df76b37b1a5a4b
