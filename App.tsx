@@ -1,0 +1,94 @@
+
+import React, { useState } from 'react';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import HomePage from './pages/HomePage';
+import AboutPage from './pages/AboutPage';
+import LoginPage from './pages/LoginPage';
+import MinistryPage from './pages/MinistryPage';
+import SchedulePage from './pages/SchedulePage';
+import ChurchInfoPage from './pages/ChurchInfoPage';
+import DonationPage from './pages/DonationPage';
+import CongregationsPage from './pages/CongregationsPage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const App: React.FC = () => {
+  const [currentPage, setCurrentPage] = useState<string>('home');
+
+  const handleNavigate = (page: string, section?: string) => {
+    if (currentPage !== page) {
+      setCurrentPage(page);
+    }
+    
+    // Use a timeout to ensure the page has re-rendered before scrolling
+    setTimeout(() => {
+      if (section) {
+        const element = document.querySelector(section);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }, 100);
+  };
+
+  const renderPage = () => {
+    if (currentPage.startsWith('ministry/')) {
+        const slug = currentPage.split('/')[1];
+        return <MinistryPage slug={slug} />;
+    }
+    if (currentPage === 'igreja/congregacoes') {
+        return <CongregationsPage />;
+    }
+    if (currentPage.startsWith('igreja/')) {
+        const slug = currentPage.split('/')[1];
+        return <ChurchInfoPage slug={slug} />;
+    }
+    switch (currentPage) {
+        case 'home':
+            return <HomePage />;
+        case 'about':
+            return <AboutPage />;
+        case 'login':
+            return <LoginPage onNavigate={handleNavigate} />;
+        case 'schedule':
+            return <SchedulePage />;
+        case 'donation':
+            return <DonationPage />;
+        case 'admin/dashboard':
+        case 'admin/events': // Fallback for legacy link
+            return <AdminDashboardPage />;
+        default:
+            return <HomePage />;
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+      className="bg-brand-dark"
+    >
+      <Header onNavigate={handleNavigate} />
+      <main>
+        <AnimatePresence mode="wait">
+            <motion.div
+                key={currentPage}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+            >
+                {renderPage()}
+            </motion.div>
+        </AnimatePresence>
+      </main>
+      <Footer />
+    </motion.div>
+  );
+};
+
+export default App;

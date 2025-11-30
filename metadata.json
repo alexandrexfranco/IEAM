@@ -1,0 +1,5 @@
+{
+  "name": "Igreja Evangélica Apostólica Missionária",
+  "description": "A modern, visually-rich website for the Igreja Evangélica Apostólica Missionária (IEAM), featuring information about the church, events, and a member login portal. Built with React, Tailwind CSS, and Framer Motion for a dynamic user experience.",
+  "requestFramePermissions": []
+}
