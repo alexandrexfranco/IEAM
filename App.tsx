@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
@@ -11,9 +11,23 @@ import DonationPage from './pages/DonationPage';
 import CongregationsPage from './pages/CongregationsPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import { motion, AnimatePresence } from 'framer-motion';
+import { onAuthStateChange } from './services/firebaseService';
+import type { User as FirebaseUser } from 'firebase/auth';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<string>('home');
+  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Listen to authentication state changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChange((user) => {
+      setCurrentUser(user);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleNavigate = (page: string, section?: string) => {
     if (currentPage !== page) {
@@ -71,7 +85,7 @@ const App: React.FC = () => {
       transition={{ duration: 0.8 }}
       className="bg-brand-dark"
     >
-      <Header onNavigate={handleNavigate} />
+      <Header onNavigate={handleNavigate} currentUser={currentUser} />
       <main>
         <AnimatePresence mode="wait">
           <motion.div

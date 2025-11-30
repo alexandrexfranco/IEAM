@@ -2,14 +2,16 @@
 import React, { useState, useEffect } from 'react';
 import Logo from './Logo';
 import Button from './Button';
-import { ministriesData, churchInfoData } from '../services/firebaseService';
+import { ministriesData, churchInfoData, logout } from '../services/firebaseService';
 import { motion, AnimatePresence } from 'framer-motion';
+import type { User as FirebaseUser } from 'firebase/auth';
 
 interface HeaderProps {
   onNavigate: (page: string, section?: string) => void;
+  currentUser: FirebaseUser | null;
 }
 
-const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
+const Header: React.FC<HeaderProps> = ({ onNavigate, currentUser }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMinistryMenuOpen, setMinistryMenuOpen] = useState(false);
   const [isChurchMenuOpen, setChurchMenuOpen] = useState(false);
@@ -53,6 +55,16 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
       setMobileMinistrySubMenuOpen(!isMobileMinistrySubMenuOpen);
     }
   }
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      onNavigate('home');
+      alert('Você saiu da sua conta com sucesso!');
+    } catch (error) {
+      alert('Erro ao sair da conta.');
+    }
+  };
 
   const mobileMenuVariants = {
     closed: { x: '-100%' },
@@ -154,14 +166,26 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
                 <a href="#" onClick={(e) => handleNavClick(e, 'schedule')} className="font-body text-sm font-medium text-brand-light hover:text-brand-gold transition-colors duration-300 cursor-pointer">Programação</a>
                 <a href="#eventos" onClick={(e) => handleNavClick(e, 'home', '#eventos')} className="font-body text-sm font-medium text-brand-light hover:text-brand-gold transition-colors duration-300 cursor-pointer">Eventos</a>
                 <a href="#contato" onClick={(e) => handleNavClick(e, 'home', '#contato')} className="font-body text-sm font-medium text-brand-light hover:text-brand-gold transition-colors duration-300 cursor-pointer">Contato</a>
+                {currentUser && (
+                  <a href="#" onClick={(e) => handleNavClick(e, 'admin/dashboard')} className="font-body text-sm font-medium text-brand-gold hover:text-brand-light transition-colors duration-300 cursor-pointer flex items-center gap-1">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    Dashboard
+                  </a>
+                )}
               </nav>
               <div className="flex items-center space-x-4">
                 <Button onClick={() => onNavigate('donation')} variant="solid">
                   Doar
                 </Button>
-                <Button onClick={() => onNavigate('login')} variant="outline">
-                  Login
-                </Button>
+                {currentUser ? (
+                  <Button onClick={handleLogout} variant="outline">
+                    Sair
+                  </Button>
+                ) : (
+                  <Button onClick={() => onNavigate('login')} variant="outline">
+                    Login
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -239,9 +263,20 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
               <a href="#eventos" onClick={(e) => handleNavClick(e, 'home', '#eventos')} className="text-brand-light hover:text-brand-gold transition-colors">Eventos</a>
               <a href="#contato" onClick={(e) => handleNavClick(e, 'home', '#contato')} className="text-brand-light hover:text-brand-gold transition-colors">Contato</a>
 
+              {currentUser && (
+                <a href="#" onClick={(e) => handleNavClick(e, 'admin/dashboard')} className="text-brand-gold hover:text-brand-light transition-colors flex items-center gap-2 pt-4 border-t border-brand-gold/20">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                  Dashboard
+                </a>
+              )}
+
               <div className="pt-8 flex flex-col space-y-4">
                 <Button onClick={() => handleNavClick(null, 'donation')} variant="solid">Doar</Button>
-                <Button onClick={() => handleNavClick(null, 'login')} variant="outline">Login</Button>
+                {currentUser ? (
+                  <Button onClick={handleLogout} variant="outline">Sair</Button>
+                ) : (
+                  <Button onClick={() => handleNavClick(null, 'login')} variant="outline">Login</Button>
+                )}
               </div>
             </nav>
           </motion.div>
