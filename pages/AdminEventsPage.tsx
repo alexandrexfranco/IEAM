@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChurchEvent } from '../types';
-import { getEvents, createEvent, updateEvent, deleteEvent } from '../services/supabaseService';
+import { getEvents, createEvent, updateEvent, deleteEvent } from '../services/firebaseService';
 import Button from '../components/Button';
 
 const AdminEventsPage: React.FC = () => {
@@ -10,7 +10,7 @@ const AdminEventsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<ChurchEvent | null>(null);
-  
+
   // Form State
   const [formData, setFormData] = useState({
     title: '',
@@ -67,7 +67,7 @@ const AdminEventsPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
       if (editingEvent) {
         await updateEvent({ ...editingEvent, ...formData });
@@ -123,7 +123,7 @@ const AdminEventsPage: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {events.map((event) => (
-              <motion.div 
+              <motion.div
                 key={event.id}
                 layoutId={`event-${event.id}`}
                 initial={{ opacity: 0 }}
@@ -131,33 +131,33 @@ const AdminEventsPage: React.FC = () => {
                 className="bg-brand-dark border border-brand-gold/20 rounded-lg shadow-lg overflow-hidden"
               >
                 <div className="h-48 overflow-hidden">
-                    <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
+                  <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
                 </div>
                 <div className="p-4">
                   <h3 className="text-xl font-bold font-heading text-brand-gold mb-2 truncate">{event.title}</h3>
                   <p className="text-sm text-brand-light/60 mb-2">{event.date} • {event.time}</p>
                   <p className="text-brand-light/80 text-sm line-clamp-3 mb-4">{event.description}</p>
                   <div className="flex justify-end space-x-2">
-                    <button 
-                        onClick={() => handleOpenModal(event)}
-                        className="px-3 py-1 text-sm border border-brand-gold text-brand-gold rounded hover:bg-brand-gold hover:text-brand-dark transition-colors"
+                    <button
+                      onClick={() => handleOpenModal(event)}
+                      className="px-3 py-1 text-sm border border-brand-gold text-brand-gold rounded hover:bg-brand-gold hover:text-brand-dark transition-colors"
                     >
-                        Editar
+                      Editar
                     </button>
-                    <button 
-                        onClick={() => handleDelete(event.id)}
-                        className="px-3 py-1 text-sm border border-red-500 text-red-500 rounded hover:bg-red-500 hover:text-white transition-colors"
+                    <button
+                      onClick={() => handleDelete(event.id)}
+                      className="px-3 py-1 text-sm border border-red-500 text-red-500 rounded hover:bg-red-500 hover:text-white transition-colors"
                     >
-                        Excluir
+                      Excluir
                     </button>
                   </div>
                 </div>
               </motion.div>
             ))}
             {events.length === 0 && (
-                <div className="col-span-full text-center py-10 border border-dashed border-brand-gold/30 rounded-lg">
-                    <p className="text-brand-light/50">Nenhum evento cadastrado.</p>
-                </div>
+              <div className="col-span-full text-center py-10 border border-dashed border-brand-gold/30 rounded-lg">
+                <p className="text-brand-light/50">Nenhum evento cadastrado.</p>
+              </div>
             )}
           </div>
         )}
@@ -166,14 +166,14 @@ const AdminEventsPage: React.FC = () => {
         <AnimatePresence>
           {isModalOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={handleCloseModal}
                 className="absolute inset-0 bg-black/80 backdrop-blur-sm"
               />
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -185,66 +185,66 @@ const AdminEventsPage: React.FC = () => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <label className="block text-brand-gold text-sm font-bold mb-1">Título</label>
-                    <input 
-                      type="text" 
-                      name="title" 
-                      value={formData.title} 
-                      onChange={handleInputChange} 
+                    <input
+                      type="text"
+                      name="title"
+                      value={formData.title}
+                      onChange={handleInputChange}
                       className={inputStyles}
-                      required 
+                      required
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-brand-gold text-sm font-bold mb-1">Data (Texto)</label>
-                        <input 
-                        type="text" 
-                        name="date" 
+                      <label className="block text-brand-gold text-sm font-bold mb-1">Data (Texto)</label>
+                      <input
+                        type="text"
+                        name="date"
                         placeholder="ex: 25 de Dezembro"
-                        value={formData.date} 
-                        onChange={handleInputChange} 
+                        value={formData.date}
+                        onChange={handleInputChange}
                         className={inputStyles}
-                        required 
-                        />
+                        required
+                      />
                     </div>
                     <div>
-                        <label className="block text-brand-gold text-sm font-bold mb-1">Horário</label>
-                        <input 
-                        type="text" 
-                        name="time" 
+                      <label className="block text-brand-gold text-sm font-bold mb-1">Horário</label>
+                      <input
+                        type="text"
+                        name="time"
                         placeholder="ex: 19:00"
-                        value={formData.time} 
-                        onChange={handleInputChange} 
+                        value={formData.time}
+                        onChange={handleInputChange}
                         className={inputStyles}
-                        required 
-                        />
+                        required
+                      />
                     </div>
                   </div>
                   <div>
                     <label className="block text-brand-gold text-sm font-bold mb-1">URL da Imagem</label>
-                    <input 
-                      type="url" 
-                      name="image" 
+                    <input
+                      type="url"
+                      name="image"
                       placeholder="https://..."
-                      value={formData.image} 
-                      onChange={handleInputChange} 
+                      value={formData.image}
+                      onChange={handleInputChange}
                       className={inputStyles}
-                      required 
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-brand-gold text-sm font-bold mb-1">Descrição</label>
-                    <textarea 
-                      name="description" 
+                    <textarea
+                      name="description"
                       rows={4}
-                      value={formData.description} 
-                      onChange={handleInputChange} 
+                      value={formData.description}
+                      onChange={handleInputChange}
                       className={inputStyles}
-                      required 
+                      required
                     />
                   </div>
                   <div className="flex justify-end gap-3 pt-4">
-                    <button 
+                    <button
                       type="button"
                       onClick={handleCloseModal}
                       className="px-4 py-2 text-brand-light hover:text-white transition-colors"

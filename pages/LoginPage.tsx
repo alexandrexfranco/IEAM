@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 // FIX: Add Variants to import
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import Button from '../components/Button';
-import { signInWithPassword, signUp } from '../services/supabaseService';
+import { signInWithPassword, signUp } from '../services/firebaseService';
 
 interface LoginPageProps {
   onNavigate: (page: string) => void;

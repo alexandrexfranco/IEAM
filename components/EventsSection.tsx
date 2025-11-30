@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ChurchEvent } from '../types';
-import { getEvents } from '../services/supabaseService';
+import { getEvents } from '../services/firebaseService';
 import { motion } from 'framer-motion';
 
 const containerVariants = {
@@ -46,7 +46,7 @@ const EventsSection: React.FC = () => {
         </motion.div>
 
         {events.length > 0 ? (
-          <motion.div 
+          <motion.div
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
             variants={containerVariants}
             initial="hidden"
@@ -54,13 +54,13 @@ const EventsSection: React.FC = () => {
             viewport={{ once: true, amount: 0.2 }}
           >
             {events.map((event) => (
-              <motion.div 
-                key={event.id} 
+              <motion.div
+                key={event.id}
                 className="bg-brand-dark border border-brand-gold/20 rounded-lg shadow-xl overflow-hidden flex flex-col group"
                 variants={itemVariants}
               >
                 <div className="overflow-hidden">
-                    <img src={event.image} alt={event.title} className="w-full h-56 object-cover transform group-hover:scale-105 transition-transform duration-500" />
+                  <img src={event.image} alt={event.title} className="w-full h-56 object-cover transform group-hover:scale-105 transition-transform duration-500" />
                 </div>
                 <div className="p-6 flex flex-col flex-grow">
                   <h3 className="text-2xl font-bold font-heading text-brand-gold mb-2">{event.title}</h3>

@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { getCongregations } from '../services/supabaseService';
+import { getCongregations } from '../services/firebaseService';
 import { Congregation } from '../types';
 
 const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-      },
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.2,
+        },
     },
-  };
-  
+};
+
 const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
@@ -38,11 +38,11 @@ const CongregationsPage: React.FC = () => {
             <section className="relative py-28 sm:py-32 md:py-40 text-center bg-brand-dark flex items-center justify-center">
                 <div className="absolute inset-0 bg-black opacity-40 z-10"></div>
                 <img
-                src="https://images.pexels.com/photos/1750275/pexels-photo-1750275.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-                alt="Mapa com pinos de localização"
-                className="absolute inset-0 w-full h-full object-cover"
+                    src="https://images.pexels.com/photos/1750275/pexels-photo-1750275.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+                    alt="Mapa com pinos de localização"
+                    className="absolute inset-0 w-full h-full object-cover"
                 />
-                <motion.div 
+                <motion.div
                     className="relative z-20"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -61,7 +61,7 @@ const CongregationsPage: React.FC = () => {
                     {loading ? (
                         <p className="text-center text-brand-gold text-xl">Carregando congregações...</p>
                     ) : (
-                        <motion.div 
+                        <motion.div
                             className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto"
                             variants={containerVariants}
                             initial="hidden"
@@ -69,8 +69,8 @@ const CongregationsPage: React.FC = () => {
                             viewport={{ once: true, amount: 0.2 }}
                         >
                             {congregations.map((congregation) => (
-                                <motion.div 
-                                    key={congregation.id} 
+                                <motion.div
+                                    key={congregation.id}
                                     className="bg-brand-dark border border-brand-gold/20 rounded-lg shadow-xl p-6 flex flex-col group"
                                     variants={itemVariants}
                                 >
