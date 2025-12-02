@@ -1,5 +1,5 @@
 export interface ChurchEvent {
-  id: number;
+  id: string;
   title: string;
   date: string;
   time: string;
@@ -22,7 +22,7 @@ export interface Ministry {
 }
 
 export interface ChurchService {
-  id: number;
+  id: string;
   title: string;
   day: string;
   time: string;
@@ -42,7 +42,7 @@ export interface ChurchInfo {
 }
 
 export interface Congregation {
-  id: number;
+  id: string;
   name: string;
   address: string;
   pastor: string;
@@ -53,7 +53,7 @@ export interface Congregation {
 export type ChurchRole = 'Pastor' | 'Presbítero' | 'Evangelista' | 'Diácono' | 'Obreiro' | 'Membro' | 'Músico';
 
 export interface Member {
-  id: number;
+  id: string;
   name: string;
   role: ChurchRole;
   email?: string;

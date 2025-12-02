@@ -129,28 +129,28 @@ export const ministriesData: Ministry[] = [
 
 const scheduleData: ChurchService[] = [
     {
-        id: 1,
+        id: '1',
         title: 'Círculo de Oração',
         day: 'Terças-feiras',
         time: '19:30',
         description: 'Um tempo dedicado à oração e intercessão. Venha buscar a face do Senhor e clamar por nossa igreja, cidade e nação.',
     },
     {
-        id: 2,
+        id: '2',
         title: 'Culto de Ensino',
         day: 'Quintas-feiras',
         time: '19:30',
         description: 'Aprofunde-se na Palavra de Deus com estudos bíblicos temáticos e expositivos. Ideal para quem deseja crescer em conhecimento.',
     },
     {
-        id: 3,
+        id: '3',
         title: 'Escola Bíblica Dominical',
         day: 'Domingos',
         time: '09:00',
         description: 'Classes para todas as idades, com ensino bíblico de qualidade para edificar sua fé desde o início do dia.',
     },
     {
-        id: 4,
+        id: '4',
         title: 'Culto de Celebração',
         day: 'Domingos',
         time: '19:00',
@@ -318,7 +318,7 @@ export const getEvents = async (): Promise<ChurchEvent[]> => {
         const eventsCol = collection(db, 'events');
         const eventsSnapshot = await getDocs(eventsCol);
         const events = eventsSnapshot.docs.map(doc => ({
-            id: parseInt(doc.id),
+            id: doc.id,
             ...doc.data()
         } as ChurchEvent));
         return events;
@@ -332,7 +332,7 @@ export const createEvent = async (event: Omit<ChurchEvent, 'id'>): Promise<Churc
     try {
         const eventsCol = collection(db, 'events');
         const docRef = await addDoc(eventsCol, event);
-        return { ...event, id: parseInt(docRef.id) };
+        return { ...event, id: docRef.id };
     } catch (error) {
         console.error('Error creating event:', error);
         throw new Error('Erro ao criar evento.');
@@ -341,7 +341,7 @@ export const createEvent = async (event: Omit<ChurchEvent, 'id'>): Promise<Churc
 
 export const updateEvent = async (event: ChurchEvent): Promise<ChurchEvent> => {
     try {
-        const eventDoc = doc(db, 'events', event.id.toString());
+        const eventDoc = doc(db, 'events', event.id);
         await updateDoc(eventDoc, { ...event });
         return event;
     } catch (error) {
@@ -350,9 +350,9 @@ export const updateEvent = async (event: ChurchEvent): Promise<ChurchEvent> => {
     }
 };
 
-export const deleteEvent = async (id: number): Promise<void> => {
+export const deleteEvent = async (id: string): Promise<void> => {
     try {
-        const eventDoc = doc(db, 'events', id.toString());
+        const eventDoc = doc(db, 'events', id);
         await deleteDoc(eventDoc);
     } catch (error) {
         console.error('Error deleting event:', error);
@@ -367,7 +367,7 @@ export const getMembers = async (): Promise<Member[]> => {
         const membersCol = collection(db, 'members');
         const membersSnapshot = await getDocs(membersCol);
         const members = membersSnapshot.docs.map(doc => ({
-            id: parseInt(doc.id),
+            id: doc.id,
             ...doc.data()
         } as Member));
         return members;
@@ -381,7 +381,7 @@ export const createMember = async (member: Omit<Member, 'id'>): Promise<Member> 
     try {
         const membersCol = collection(db, 'members');
         const docRef = await addDoc(membersCol, member);
-        return { ...member, id: parseInt(docRef.id) };
+        return { ...member, id: docRef.id };
     } catch (error) {
         console.error('Error creating member:', error);
         throw new Error('Erro ao criar membro.');
@@ -390,7 +390,7 @@ export const createMember = async (member: Omit<Member, 'id'>): Promise<Member> 
 
 export const updateMember = async (member: Member): Promise<Member> => {
     try {
-        const memberDoc = doc(db, 'members', member.id.toString());
+        const memberDoc = doc(db, 'members', member.id);
         await updateDoc(memberDoc, { ...member });
         return member;
     } catch (error) {
@@ -399,9 +399,9 @@ export const updateMember = async (member: Member): Promise<Member> => {
     }
 };
 
-export const deleteMember = async (id: number): Promise<void> => {
+export const deleteMember = async (id: string): Promise<void> => {
     try {
-        const memberDoc = doc(db, 'members', id.toString());
+        const memberDoc = doc(db, 'members', id);
         await deleteDoc(memberDoc);
     } catch (error) {
         console.error('Error deleting member:', error);
@@ -416,7 +416,7 @@ export const getCongregations = async (): Promise<Congregation[]> => {
         const congregationsCol = collection(db, 'congregations');
         const congregationsSnapshot = await getDocs(congregationsCol);
         const congregations = congregationsSnapshot.docs.map(doc => ({
-            id: parseInt(doc.id),
+            id: doc.id,
             ...doc.data()
         } as Congregation));
         return congregations;
@@ -430,7 +430,7 @@ export const createCongregation = async (congregation: Omit<Congregation, 'id'>)
     try {
         const congregationsCol = collection(db, 'congregations');
         const docRef = await addDoc(congregationsCol, congregation);
-        return { ...congregation, id: parseInt(docRef.id) };
+        return { ...congregation, id: docRef.id };
     } catch (error) {
         console.error('Error creating congregation:', error);
         throw new Error('Erro ao criar congregação.');
@@ -439,7 +439,7 @@ export const createCongregation = async (congregation: Omit<Congregation, 'id'>)
 
 export const updateCongregation = async (congregation: Congregation): Promise<Congregation> => {
     try {
-        const congregationDoc = doc(db, 'congregations', congregation.id.toString());
+        const congregationDoc = doc(db, 'congregations', congregation.id);
         await updateDoc(congregationDoc, { ...congregation });
         return congregation;
     } catch (error) {
@@ -448,13 +448,43 @@ export const updateCongregation = async (congregation: Congregation): Promise<Co
     }
 };
 
-export const deleteCongregation = async (id: number): Promise<void> => {
+export const deleteCongregation = async (id: string): Promise<void> => {
     try {
-        const congregationDoc = doc(db, 'congregations', id.toString());
+        const congregationDoc = doc(db, 'congregations', id);
         await deleteDoc(congregationDoc);
     } catch (error) {
         console.error('Error deleting congregation:', error);
         throw new Error('Erro ao deletar congregação.');
+    }
+};
+
+// --- STORAGE (ImgBB) ---
+
+export const uploadImage = async (file: File): Promise<string> => {
+    try {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        const apiKey = import.meta.env.VITE_IMGBB_API_KEY;
+        if (!apiKey) {
+            throw new Error('ImgBB API Key não configurada. Adicione VITE_IMGBB_API_KEY no .env.local');
+        }
+
+        const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            return data.data.url;
+        } else {
+            throw new Error(data.error?.message || 'Erro ao fazer upload da imagem.');
+        }
+    } catch (error: any) {
+        console.error('Error uploading image:', error);
+        throw new Error(error.message || 'Erro ao fazer upload da imagem.');
     }
 };
 

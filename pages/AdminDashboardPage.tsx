@@ -5,7 +5,8 @@ import { ChurchEvent, Member, ChurchRole, Congregation } from '../types';
 import {
   getEvents, createEvent, updateEvent, deleteEvent,
   getMembers, createMember, updateMember, deleteMember,
-  getCongregations, createCongregation, updateCongregation, deleteCongregation
+  getCongregations, createCongregation, updateCongregation, deleteCongregation,
+  uploadImage
 } from '../services/firebaseService';
 import Button from '../components/Button';
 
@@ -117,8 +118,8 @@ const SidebarItem: React.FC<{ label: string; icon: React.ReactNode; isActive: bo
   <button
     onClick={onClick}
     className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300 group ${isActive
-        ? 'bg-brand-gold text-brand-dark font-bold shadow-lg shadow-brand-gold/20'
-        : 'text-brand-light/60 hover:bg-brand-light/5 hover:text-brand-gold'
+      ? 'bg-brand-gold text-brand-dark font-bold shadow-lg shadow-brand-gold/20'
+      : 'text-brand-light/60 hover:bg-brand-light/5 hover:text-brand-gold'
       }`}
   >
     <div className={`${isActive ? 'text-brand-dark' : 'text-brand-light/60 group-hover:text-brand-gold'}`}>
@@ -407,7 +408,7 @@ const EventsManager: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm('Tem certeza que deseja excluir este evento?')) {
       try {
         await deleteEvent(id);
@@ -496,6 +497,8 @@ const MembersManager: React.FC = () => {
     phone: '',
     photo: ''
   });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const fetchMembers = async () => {
     setLoading(true);
@@ -513,6 +516,7 @@ const MembersManager: React.FC = () => {
     : members.filter(m => m.role === filterRole);
 
   const handleOpenModal = (member?: Member) => {
+    setSelectedFile(null);
     if (member) {
       setEditingMember(member);
       setFormData({
@@ -540,22 +544,39 @@ const MembersManager: React.FC = () => {
     setEditingMember(null);
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      setUploading(true);
+      let photoUrl = formData.photo;
+
+      if (selectedFile) {
+        photoUrl = await uploadImage(selectedFile);
+      }
+
+      const memberData = { ...formData, photo: photoUrl };
+
       if (editingMember) {
-        await updateMember({ ...editingMember, ...formData });
+        await updateMember({ ...editingMember, ...memberData });
       } else {
-        await createMember(formData);
+        await createMember(memberData);
       }
       await fetchMembers();
       handleCloseModal();
     } catch (error) {
       alert("Erro ao salvar membro.");
+    } finally {
+      setUploading(false);
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm('Tem certeza que deseja excluir este membro?')) {
       try {
         await deleteMember(id);
@@ -645,10 +666,29 @@ const MembersManager: React.FC = () => {
                   <div><label className="block text-brand-gold text-sm font-bold mb-1">Email</label><input type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className={inputStyles} /></div>
                   <div><label className="block text-brand-gold text-sm font-bold mb-1">Telefone</label><input type="tel" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className={inputStyles} /></div>
                 </div>
-                <div><label className="block text-brand-gold text-sm font-bold mb-1">URL da Foto (Opcional)</label><input type="url" value={formData.photo} onChange={e => setFormData({ ...formData, photo: e.target.value })} className={inputStyles} /></div>
+                <div>
+                  <label className="block text-brand-gold text-sm font-bold mb-1">Foto</label>
+                  <div className="flex items-center gap-4">
+                    {(selectedFile || formData.photo) && (
+                      <div className="w-16 h-16 rounded-full overflow-hidden border border-brand-gold shrink-0">
+                        <img
+                          src={selectedFile ? URL.createObjectURL(selectedFile) : formData.photo}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className={`${inputStyles} file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-gold file:text-brand-dark hover:file:bg-opacity-90`}
+                    />
+                  </div>
+                </div>
                 <div className="flex justify-end gap-3 pt-4">
-                  <button type="button" onClick={handleCloseModal} className="px-4 py-2 text-brand-light hover:text-white">Cancelar</button>
-                  <Button type="submit" variant="solid">Salvar</Button>
+                  <button type="button" onClick={handleCloseModal} className="px-4 py-2 text-brand-light hover:text-white" disabled={uploading}>Cancelar</button>
+                  <Button type="submit" variant="solid" disabled={uploading}>{uploading ? 'Salvando...' : 'Salvar'}</Button>
                 </div>
               </form>
             </motion.div>
@@ -726,7 +766,7 @@ const CongregationsManager: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm('Tem certeza que deseja excluir esta congregação?')) {
       try {
         await deleteCongregation(id);
