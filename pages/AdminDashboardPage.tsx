@@ -19,10 +19,34 @@ const MenuIcon = () => <svg className="w-6 h-6" fill="none" stroke="currentColor
 
 const AdminDashboardPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'events' | 'members' | 'congregations'>('overview');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Default open for desktop
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Default closed, effect will open for desktop
 
   // Toggle sidebar for mobile
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
+  // Auto-open sidebar on desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsSidebarOpen(true);
+      }
+    };
+
+    // Initial check
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Auto-close sidebar on mobile when tab changes
+  const handleTabChange = (tab: 'overview' | 'events' | 'members' | 'congregations') => {
+    setActiveTab(tab);
+    // Close sidebar on mobile after selection
+    if (window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
+  };
 
   return (
     <div className="flex h-screen bg-brand-dark overflow-hidden pt-20">
@@ -30,10 +54,19 @@ const AdminDashboardPage: React.FC = () => {
       {/* Sidebar */}
       <motion.aside
         initial={false}
-        animate={{ width: isSidebarOpen ? '16rem' : '0rem', opacity: isSidebarOpen ? 1 : 0 }}
-        className={`fixed md:relative z-30 h-full bg-[#1a1a1a] border-r border-brand-gold/10 flex flex-col transition-all duration-300 overflow-hidden`}
+        animate={{
+          x: isSidebarOpen ? 0 : '-100%',
+        }}
+        className={`fixed md:relative top-0 left-0 z-[60] w-64 h-screen md:h-full bg-[#1a1a1a] border-r border-brand-gold/10 flex flex-col transition-all duration-300 overflow-hidden md:translate-x-0`}
       >
-        <div className="p-8 flex flex-col items-center border-b border-brand-gold/10">
+        <div className="relative p-8 flex flex-col items-center border-b border-brand-gold/10">
+          {/* Mobile Close Button */}
+          <button
+            onClick={() => setIsSidebarOpen(false)}
+            className="md:hidden absolute top-4 right-4 text-brand-gold/50 hover:text-brand-gold"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
           <div className="w-20 h-20 rounded-full p-1 border-2 border-brand-gold mb-4 relative">
             <img
               src="https://ui-avatars.com/api/?name=Admin+User&background=D4AF74&color=232323"
@@ -51,25 +84,25 @@ const AdminDashboardPage: React.FC = () => {
             label="Visão Geral"
             icon={<HomeIcon />}
             isActive={activeTab === 'overview'}
-            onClick={() => setActiveTab('overview')}
+            onClick={() => handleTabChange('overview')}
           />
           <SidebarItem
             label="Eventos"
             icon={<EventIcon />}
             isActive={activeTab === 'events'}
-            onClick={() => setActiveTab('events')}
+            onClick={() => handleTabChange('events')}
           />
           <SidebarItem
             label="Membros"
             icon={<MemberIcon />}
             isActive={activeTab === 'members'}
-            onClick={() => setActiveTab('members')}
+            onClick={() => handleTabChange('members')}
           />
           <SidebarItem
             label="Congregações"
             icon={<LocationIcon />}
             isActive={activeTab === 'congregations'}
-            onClick={() => setActiveTab('congregations')}
+            onClick={() => handleTabChange('congregations')}
           />
         </nav>
 
@@ -77,6 +110,19 @@ const AdminDashboardPage: React.FC = () => {
           <p className="text-xs text-brand-light/30 text-center">IEAM System v1.0</p>
         </div>
       </motion.aside>
+
+      {/* Mobile Overlay */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsSidebarOpen(false)}
+            className="md:hidden fixed inset-0 top-0 bg-black/60 z-[55]"
+          />
+        )}
+      </AnimatePresence>
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#232323] relative">
@@ -170,7 +216,7 @@ const DashboardOverview: React.FC = () => {
 
   // Process data for charts
   const maxCount = Math.max(...(Object.values(roleDistribution) as number[]), 1);
-  const sortedRoles = Object.entries(roleDistribution).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const sortedRoles = Object.entries(roleDistribution).sort((a, b) => (b[1] as number) - (a[1] as number)).slice(0, 6);
 
   // Calculate percentage for circle chart (e.g., Leadership vs Members)
   const totalMembers = stats.members || 1;
@@ -462,8 +508,8 @@ const EventsManager: React.FC = () => {
                 <h3 className="text-lg font-bold font-heading text-brand-gold mb-1 truncate">{event.title}</h3>
                 <p className="text-xs text-brand-light/60 mb-2">{event.date} • {event.time}</p>
                 <div className="flex justify-end space-x-2 mt-4">
-                  <button onClick={() => handleOpenModal(event)} className="text-xs px-3 py-1 border border-brand-gold text-brand-gold rounded hover:bg-brand-gold hover:text-brand-dark transition-colors">Editar</button>
-                  <button onClick={() => handleDelete(event.id)} className="text-xs px-3 py-1 border border-red-500 text-red-500 rounded hover:bg-red-500 hover:text-white transition-colors">Excluir</button>
+                  <button onClick={() => handleOpenModal(event)} className="text-xs sm:text-sm px-3 py-2 border border-brand-gold text-brand-gold rounded hover:bg-brand-gold hover:text-brand-dark transition-colors min-h-[44px] sm:min-h-0">Editar</button>
+                  <button onClick={() => handleDelete(event.id)} className="text-xs sm:text-sm px-3 py-2 border border-red-500 text-red-500 rounded hover:bg-red-500 hover:text-white transition-colors min-h-[44px] sm:min-h-0">Excluir</button>
                 </div>
               </div>
             </div>
@@ -480,7 +526,7 @@ const EventsManager: React.FC = () => {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative bg-brand-dark border border-brand-gold rounded-lg w-full max-w-lg p-6 z-10 max-h-[90vh] overflow-y-auto"
+              className="relative bg-brand-dark border border-brand-gold rounded-lg w-full max-w-lg p-4 sm:p-6 z-10 max-h-[90vh] overflow-y-auto"
             >
               <h2 className="text-2xl font-heading font-bold text-brand-gold mb-6">{editingEvent ? 'Editar Evento' : 'Novo Evento'}</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -702,7 +748,7 @@ const MembersManager: React.FC = () => {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative bg-brand-dark border border-brand-gold rounded-lg w-full max-w-lg p-6 z-10 max-h-[90vh] overflow-y-auto"
+              className="relative bg-brand-dark border border-brand-gold rounded-lg w-full max-w-lg p-4 sm:p-6 z-10 max-h-[90vh] overflow-y-auto"
             >
               <h2 className="text-2xl font-heading font-bold text-brand-gold mb-6">{editingMember ? 'Editar Membro' : 'Novo Membro'}</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -867,7 +913,7 @@ const CongregationsManager: React.FC = () => {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative bg-brand-dark border border-brand-gold rounded-lg w-full max-w-lg p-6 z-10 max-h-[90vh] overflow-y-auto"
+              className="relative bg-brand-dark border border-brand-gold rounded-lg w-full max-w-lg p-4 sm:p-6 z-10 max-h-[90vh] overflow-y-auto"
             >
               <h2 className="text-2xl font-heading font-bold text-brand-gold mb-6">{editingCongregation ? 'Editar Congregação' : 'Nova Congregação'}</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -890,3 +936,4 @@ const CongregationsManager: React.FC = () => {
 };
 
 export default AdminDashboardPage;
+
