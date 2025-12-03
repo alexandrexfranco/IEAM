@@ -19,6 +19,19 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
 };
 
+// Helper function to format date from YYYY-MM-DD to DD/MM/YYYY
+const formatDate = (dateString: string): string => {
+  if (!dateString) return dateString;
+
+  // Check if it's already in YYYY-MM-DD format
+  if (dateString.includes('-')) {
+    const [year, month, day] = dateString.split('-');
+    return `${day}/${month}/${year}`;
+  }
+
+  return dateString;
+};
+
 const EventsSection: React.FC = () => {
   const [events, setEvents] = useState<ChurchEvent[]>([]);
 
@@ -65,11 +78,11 @@ const EventsSection: React.FC = () => {
                 <div className="p-6 flex flex-col flex-grow">
                   <h3 className="text-2xl font-bold font-heading text-brand-gold mb-2">{event.title}</h3>
                   <div className="flex items-center text-brand-gold/80 mb-4 text-sm">
-                    <span>{event.date}</span>
+                    <span>{formatDate(event.date)}</span>
                     <span className="mx-2">|</span>
                     <span>{event.time}</span>
                   </div>
-                  <p className="text-brand-light/80 mb-4 flex-grow">{event.description}</p>
+                  <p className="text-brand-light/80 mb-4 flex-grow whitespace-pre-line">{event.description}</p>
                   <a href="#" className="mt-auto self-start font-bold text-brand-gold hover:underline">Saiba Mais</a>
                 </div>
               </motion.div>

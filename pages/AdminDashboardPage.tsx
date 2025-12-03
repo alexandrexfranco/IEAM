@@ -353,6 +353,8 @@ const EventsManager: React.FC = () => {
     description: '',
     image: ''
   });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const fetchEvents = async () => {
     setLoading(true);
@@ -366,6 +368,7 @@ const EventsManager: React.FC = () => {
   }, []);
 
   const handleOpenModal = (event?: ChurchEvent) => {
+    setSelectedFile(null);
     if (event) {
       setEditingEvent(event);
       setFormData({
@@ -393,18 +396,35 @@ const EventsManager: React.FC = () => {
     setEditingEvent(null);
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      setUploading(true);
+      let imageUrl = formData.image;
+
+      if (selectedFile) {
+        imageUrl = await uploadImage(selectedFile);
+      }
+
+      const eventData = { ...formData, image: imageUrl };
+
       if (editingEvent) {
-        await updateEvent({ ...editingEvent, ...formData });
+        await updateEvent({ ...editingEvent, ...eventData });
       } else {
-        await createEvent(formData);
+        await createEvent(eventData);
       }
       await fetchEvents();
       handleCloseModal();
     } catch (error) {
       alert("Erro ao salvar evento.");
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -464,16 +484,47 @@ const EventsManager: React.FC = () => {
             >
               <h2 className="text-2xl font-heading font-bold text-brand-gold mb-6">{editingEvent ? 'Editar Evento' : 'Novo Evento'}</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div><label className="block text-brand-gold text-sm font-bold mb-1">Título</label><input type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} className={inputStyles} required /></div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div><label className="block text-brand-gold text-sm font-bold mb-1">Data</label><input type="text" value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} className={inputStyles} required /></div>
-                  <div><label className="block text-brand-gold text-sm font-bold mb-1">Horário</label><input type="text" value={formData.time} onChange={e => setFormData({ ...formData, time: e.target.value })} className={inputStyles} required /></div>
+                <div>
+                  <label className="block text-brand-gold text-sm font-bold mb-1">Título</label>
+                  <input type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} className={inputStyles} required />
                 </div>
-                <div><label className="block text-brand-gold text-sm font-bold mb-1">URL Imagem</label><input type="url" value={formData.image} onChange={e => setFormData({ ...formData, image: e.target.value })} className={inputStyles} required /></div>
-                <div><label className="block text-brand-gold text-sm font-bold mb-1">Descrição</label><textarea rows={3} value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className={inputStyles} required /></div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-brand-gold text-sm font-bold mb-1">Data</label>
+                    <input type="date" value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} className={inputStyles} required />
+                  </div>
+                  <div>
+                    <label className="block text-brand-gold text-sm font-bold mb-1">Horário</label>
+                    <input type="time" value={formData.time} onChange={e => setFormData({ ...formData, time: e.target.value })} className={inputStyles} required />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-brand-gold text-sm font-bold mb-1">Imagem do Evento</label>
+                  <div className="flex items-center gap-4">
+                    {(selectedFile || formData.image) && (
+                      <div className="w-24 h-24 rounded overflow-hidden border border-brand-gold shrink-0">
+                        <img
+                          src={selectedFile ? URL.createObjectURL(selectedFile) : formData.image}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className={`${inputStyles} file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-gold file:text-brand-dark hover:file:bg-opacity-90`}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-brand-gold text-sm font-bold mb-1">Descrição</label>
+                  <textarea rows={3} value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className={inputStyles} required />
+                </div>
                 <div className="flex justify-end gap-3 pt-4">
-                  <button type="button" onClick={handleCloseModal} className="px-4 py-2 text-brand-light hover:text-white">Cancelar</button>
-                  <Button type="submit" variant="solid">Salvar</Button>
+                  <button type="button" onClick={handleCloseModal} className="px-4 py-2 text-brand-light hover:text-white" disabled={uploading}>Cancelar</button>
+                  <Button type="submit" variant="solid" disabled={uploading}>{uploading ? 'Salvando...' : 'Salvar'}</Button>
                 </div>
               </form>
             </motion.div>
