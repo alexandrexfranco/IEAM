@@ -3,7 +3,10 @@ import {
     createUserWithEmailAndPassword,
     signOut,
     onAuthStateChanged,
-    User as FirebaseUser
+    User as FirebaseUser,
+    updatePassword,
+    EmailAuthProvider,
+    reauthenticateWithCredential
 } from 'firebase/auth';
 import {
     collection,
@@ -470,6 +473,32 @@ export const updateMemberProfile = async (uid: string, data: Partial<Member>): P
     } catch (error) {
         console.error('Error updating member profile:', error);
         throw error;
+    }
+};
+
+// Change user password
+export const changePassword = async (currentPassword: string, newPassword: string): Promise<void> => {
+    try {
+        const user = auth.currentUser;
+        if (!user || !user.email) {
+            throw new Error('Usuário não autenticado.');
+        }
+
+        // Re-authenticate user before changing password (Firebase security requirement)
+        const credential = EmailAuthProvider.credential(user.email, currentPassword);
+        await reauthenticateWithCredential(user, credential);
+
+        // Update password
+        await updatePassword(user, newPassword);
+    } catch (error: any) {
+        console.error('Error changing password:', error);
+        if (error.code === 'auth/wrong-password') {
+            throw new Error('Senha atual incorreta.');
+        } else if (error.code === 'auth/weak-password') {
+            throw new Error('A nova senha deve ter pelo menos 6 caracteres.');
+        } else {
+            throw new Error('Erro ao alterar senha. Tente novamente.');
+        }
     }
 };
 

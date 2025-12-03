@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { getMemberByUserId, updateMemberProfile, uploadImage, createMember } from '../services/firebaseService';
+import { getMemberByUserId, updateMemberProfile, uploadImage, createMember, changePassword } from '../services/firebaseService';
 import { Member } from '../types';
 import { auth } from '../services/firebaseConfig';
 import Button from '../components/Button';
@@ -16,6 +16,12 @@ const UserDashboardPage: React.FC = () => {
     const [phone, setPhone] = useState('');
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+    // Password change states
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [changingPassword, setChangingPassword] = useState(false);
 
     useEffect(() => {
         const fetchMemberData = async () => {
@@ -90,6 +96,33 @@ const UserDashboardPage: React.FC = () => {
         } finally {
             setSaving(false);
             setUploading(false);
+        }
+    };
+
+    const handleChangePassword = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (newPassword !== confirmPassword) {
+            alert('As senhas não coincidem.');
+            return;
+        }
+
+        if (newPassword.length < 6) {
+            alert('A nova senha deve ter pelo menos 6 caracteres.');
+            return;
+        }
+
+        setChangingPassword(true);
+        try {
+            await changePassword(currentPassword, newPassword);
+            alert('Senha alterada com sucesso!');
+            setCurrentPassword('');
+            setNewPassword('');
+            setConfirmPassword('');
+        } catch (error: any) {
+            alert(error.message || 'Erro ao alterar senha.');
+        } finally {
+            setChangingPassword(false);
         }
     };
 
@@ -190,6 +223,58 @@ const UserDashboardPage: React.FC = () => {
                             </div>
 
                         </form>
+
+                        {/* Password Change Section */}
+                        <div className="mt-8 pt-8 border-t border-brand-gold/10">
+                            <h2 className="text-xl font-heading font-bold text-brand-gold mb-4">Alterar Senha</h2>
+                            <form onSubmit={handleChangePassword} className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-brand-light/80">Senha Atual</label>
+                                        <input
+                                            type="password"
+                                            value={currentPassword}
+                                            onChange={(e) => setCurrentPassword(e.target.value)}
+                                            className="w-full bg-brand-dark border border-brand-gold/20 rounded-md px-4 py-2 text-brand-light focus:outline-none focus:border-brand-gold transition-colors"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-brand-light/80">Nova Senha</label>
+                                        <input
+                                            type="password"
+                                            value={newPassword}
+                                            onChange={(e) => setNewPassword(e.target.value)}
+                                            className="w-full bg-brand-dark border border-brand-gold/20 rounded-md px-4 py-2 text-brand-light focus:outline-none focus:border-brand-gold transition-colors"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-brand-light/80">Confirmar Nova Senha</label>
+                                        <input
+                                            type="password"
+                                            value={confirmPassword}
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            className="w-full bg-brand-dark border border-brand-gold/20 rounded-md px-4 py-2 text-brand-light focus:outline-none focus:border-brand-gold transition-colors"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-end">
+                                    <Button
+                                        type="submit"
+                                        disabled={changingPassword}
+                                        variant="outline"
+                                        className="min-w-[150px]"
+                                    >
+                                        {changingPassword ? 'Alterando...' : 'Alterar Senha'}
+                                    </Button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </motion.div>
             </div>
