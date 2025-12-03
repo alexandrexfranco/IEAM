@@ -54,9 +54,11 @@ export type ChurchRole = 'Pastor' | 'Presbítero' | 'Evangelista' | 'Diácono' |
 
 export interface Member {
   id: string;
+  uid?: string; // Link to Firebase Auth User ID
   name: string;
   role: ChurchRole;
   email?: string;
   phone?: string;
   photo?: string;
+  isAdmin?: boolean; // Database-backed admin flag
 }

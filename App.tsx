@@ -10,6 +10,7 @@ import ChurchInfoPage from './pages/ChurchInfoPage';
 import DonationPage from './pages/DonationPage';
 import CongregationsPage from './pages/CongregationsPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
+import UserDashboardPage from './pages/UserDashboardPage';
 import { motion, AnimatePresence } from 'framer-motion';
 import { onAuthStateChange } from './services/firebaseService';
 import type { User as FirebaseUser } from 'firebase/auth';
@@ -72,7 +73,9 @@ const App: React.FC = () => {
         return <DonationPage />;
       case 'admin/dashboard':
       case 'admin/events': // Fallback for legacy link
-        return <AdminDashboardPage />;
+        return <AdminDashboardPage onNavigate={handleNavigate} />;
+      case 'dashboard':
+        return <UserDashboardPage />;
       default:
         return <HomePage />;
     }

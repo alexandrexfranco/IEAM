@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import Logo from './Logo';
 import Button from './Button';
-import { ministriesData, churchInfoData, logout } from '../services/firebaseService';
+import { ministriesData, churchInfoData, logout, getMemberByUserId } from '../services/firebaseService';
+import { Member } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { User as FirebaseUser } from 'firebase/auth';
 
@@ -20,6 +21,22 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentUser }) => {
   // States for mobile submenus
   const [isMobileChurchSubMenuOpen, setMobileChurchSubMenuOpen] = useState(false);
   const [isMobileMinistrySubMenuOpen, setMobileMinistrySubMenuOpen] = useState(false);
+
+  // User Menu State
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [member, setMember] = useState<Member | null>(null);
+
+  useEffect(() => {
+    const fetchMember = async () => {
+      if (currentUser) {
+        const memberData = await getMemberByUserId(currentUser.uid);
+        setMember(memberData);
+      } else {
+        setMember(null);
+      }
+    };
+    fetchMember();
+  }, [currentUser]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -166,21 +183,63 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentUser }) => {
                 <a href="#" onClick={(e) => handleNavClick(e, 'schedule')} className="font-body text-sm font-medium text-brand-light hover:text-brand-gold transition-colors duration-300 cursor-pointer">Programação</a>
                 <a href="#eventos" onClick={(e) => handleNavClick(e, 'home', '#eventos')} className="font-body text-sm font-medium text-brand-light hover:text-brand-gold transition-colors duration-300 cursor-pointer">Eventos</a>
                 <a href="#contato" onClick={(e) => handleNavClick(e, 'home', '#contato')} className="font-body text-sm font-medium text-brand-light hover:text-brand-gold transition-colors duration-300 cursor-pointer">Contato</a>
-                {currentUser && (
-                  <a href="#" onClick={(e) => handleNavClick(e, 'admin/dashboard')} className="font-body text-sm font-medium text-brand-gold hover:text-brand-light transition-colors duration-300 cursor-pointer flex items-center gap-1">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                    Dashboard
-                  </a>
-                )}
               </nav>
               <div className="flex items-center space-x-4">
                 <Button onClick={() => onNavigate('donation')} variant="solid">
                   Doar
                 </Button>
                 {currentUser ? (
-                  <Button onClick={handleLogout} variant="outline">
-                    Sair
-                  </Button>
+                  <div className="relative" onMouseEnter={() => setIsUserMenuOpen(true)} onMouseLeave={() => setIsUserMenuOpen(false)}>
+                    <button className="flex items-center gap-2 focus:outline-none">
+                      <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-brand-gold">
+                        <img
+                          src={member?.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(member?.name || currentUser.email || 'User')}&background=random`}
+                          alt="User"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    </button>
+                    <AnimatePresence>
+                      {isUserMenuOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          className="absolute top-full right-0 mt-2 w-48 bg-brand-dark/90 backdrop-blur-sm shadow-lg rounded-md py-2 z-50 border border-brand-gold/20"
+                        >
+                          <div className="px-4 py-2 border-b border-brand-gold/10 mb-2">
+                            <p className="text-sm font-bold text-brand-light truncate">{member?.name || 'Usuário'}</p>
+                            <p className="text-xs text-brand-light/60 truncate">{currentUser.email}</p>
+                          </div>
+
+                          <a
+                            href="#"
+                            onClick={(e) => handleNavClick(e, 'dashboard')}
+                            className="block px-4 py-2 text-sm text-brand-light hover:bg-brand-gold hover:text-brand-dark transition-colors duration-200"
+                          >
+                            Meu Perfil
+                          </a>
+
+                          {member?.isAdmin && (
+                            <a
+                              href="#"
+                              onClick={(e) => handleNavClick(e, 'admin/dashboard')}
+                              className="block px-4 py-2 text-sm text-brand-gold hover:bg-brand-gold hover:text-brand-dark transition-colors duration-200"
+                            >
+                              Painel Admin
+                            </a>
+                          )}
+
+                          <button
+                            onClick={handleLogout}
+                            className="w-full text-left block px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors duration-200"
+                          >
+                            Sair
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 ) : (
                   <Button onClick={() => onNavigate('login')} variant="outline">
                     Login
@@ -263,17 +322,29 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentUser }) => {
               <a href="#eventos" onClick={(e) => handleNavClick(e, 'home', '#eventos')} className="text-brand-light hover:text-brand-gold transition-colors">Eventos</a>
               <a href="#contato" onClick={(e) => handleNavClick(e, 'home', '#contato')} className="text-brand-light hover:text-brand-gold transition-colors">Contato</a>
 
-              {currentUser && (
-                <a href="#" onClick={(e) => handleNavClick(e, 'admin/dashboard')} className="text-brand-gold hover:text-brand-light transition-colors flex items-center gap-2 pt-4 border-t border-brand-gold/20">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                  Dashboard
-                </a>
-              )}
-
               <div className="pt-8 flex flex-col space-y-4">
                 <Button onClick={() => handleNavClick(null, 'donation')} variant="solid">Doar</Button>
                 {currentUser ? (
-                  <Button onClick={handleLogout} variant="outline">Sair</Button>
+                  <>
+                    <div className="flex items-center gap-3 px-2 py-2 border-b border-brand-gold/10 mb-2">
+                      <div className="w-10 h-10 rounded-full overflow-hidden border border-brand-gold">
+                        <img
+                          src={member?.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(member?.name || currentUser.email || 'User')}&background=random`}
+                          alt="User"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-brand-light">{member?.name || 'Usuário'}</p>
+                        <p className="text-xs text-brand-light/60">{currentUser.email}</p>
+                      </div>
+                    </div>
+                    <Button onClick={() => handleNavClick(null, 'dashboard')} variant="outline">Meu Perfil</Button>
+                    {member?.isAdmin && (
+                      <Button onClick={() => handleNavClick(null, 'admin/dashboard')} variant="outline" className="!text-brand-gold !border-brand-gold">Painel Admin</Button>
+                    )}
+                    <Button onClick={handleLogout} variant="outline" className="!text-red-400 !border-red-400 hover:!bg-red-400/10">Sair</Button>
+                  </>
                 ) : (
                   <Button onClick={() => handleNavClick(null, 'login')} variant="outline">Login</Button>
                 )}

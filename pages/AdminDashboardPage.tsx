@@ -6,8 +6,9 @@ import {
   getEvents, createEvent, updateEvent, deleteEvent,
   getMembers, createMember, updateMember, deleteMember,
   getCongregations, createCongregation, updateCongregation, deleteCongregation,
-  uploadImage
+  uploadImage, getMemberByUserId
 } from '../services/firebaseService';
+import { auth } from '../services/firebaseConfig';
 import Button from '../components/Button';
 
 // Icons
@@ -17,9 +18,33 @@ const MemberIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentCol
 const LocationIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>;
 const MenuIcon = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>;
 
-const AdminDashboardPage: React.FC = () => {
+const AdminDashboardPage: React.FC = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'events' | 'members' | 'congregations'>('overview');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Default closed, effect will open for desktop
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [adminMember, setAdminMember] = useState<Member | null>(null);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      const user = auth.currentUser;
+      if (!user) {
+        onNavigate('login');
+        return;
+      }
+
+      const member = await getMemberByUserId(user.uid);
+      if (member && member.isAdmin) {
+        setIsAdmin(true);
+        setAdminMember(member);
+      } else {
+        alert('Acesso negado. Área restrita para administradores.');
+        onNavigate('home');
+      }
+      setLoading(false);
+    };
+    checkAdminStatus();
+  }, [onNavigate]);
 
   // Toggle sidebar for mobile
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
@@ -48,6 +73,14 @@ const AdminDashboardPage: React.FC = () => {
     }
   };
 
+  if (loading) {
+    return <div className="min-h-screen bg-brand-dark flex items-center justify-center text-brand-gold">Carregando...</div>;
+  }
+
+  if (!isAdmin) {
+    return null;
+  }
+
   return (
     <div className="flex h-screen bg-brand-dark overflow-hidden pt-20">
 
@@ -69,14 +102,14 @@ const AdminDashboardPage: React.FC = () => {
           </button>
           <div className="w-20 h-20 rounded-full p-1 border-2 border-brand-gold mb-4 relative">
             <img
-              src="https://ui-avatars.com/api/?name=Admin+User&background=D4AF74&color=232323"
+              src={adminMember?.photo || "https://ui-avatars.com/api/?name=Admin+User&background=D4AF74&color=232323"}
               alt="Admin"
               className="w-full h-full rounded-full object-cover"
             />
             <div className="absolute bottom-0 right-0 w-5 h-5 bg-green-500 border-2 border-brand-dark rounded-full"></div>
           </div>
-          <h3 className="text-brand-light font-heading font-bold text-lg text-center">Administrador</h3>
-          <p className="text-brand-light/50 text-xs mt-1">admin@ieam.com.br</p>
+          <h3 className="text-brand-light font-heading font-bold text-lg text-center">{adminMember?.name || 'Administrador'}</h3>
+          <p className="text-brand-light/50 text-xs mt-1">{adminMember?.email || 'admin@ieam.com.br'}</p>
         </div>
 
         <nav className="flex-1 py-6 px-4 space-y-2 overflow-y-auto">
@@ -684,6 +717,18 @@ const MembersManager: React.FC = () => {
     }
   };
 
+  const handleToggleAdmin = async (member: Member) => {
+    const action = member.isAdmin ? 'remover' : 'conceder';
+    if (window.confirm(`Tem certeza que deseja ${action} permissão de administrador para ${member.name}?`)) {
+      try {
+        await updateMember({ ...member, isAdmin: !member.isAdmin });
+        await fetchMembers();
+      } catch (error) {
+        alert(`Erro ao ${action} permissão de administrador.`);
+      }
+    }
+  };
+
   const roles: ChurchRole[] = ['Pastor', 'Presbítero', 'Evangelista', 'Diácono', 'Obreiro', 'Músico', 'Membro'];
   const inputStyles = "w-full bg-brand-dark border border-brand-gold/30 focus:border-brand-gold text-brand-light p-3 rounded-sm outline-none transition-colors";
 
@@ -727,10 +772,16 @@ const MembersManager: React.FC = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="text-md font-bold font-heading text-brand-light truncate">{member.name}</h3>
-                <span className="text-xs text-brand-gold uppercase tracking-wide block mb-1">{member.role}</span>
+                <span className="text-xs text-brand-gold uppercase tracking-wide mb-1 flex items-center gap-2">
+                  {member.role}
+                  {member.isAdmin && <span className="bg-green-500/20 text-green-500 px-1.5 py-0.5 rounded text-[10px] font-bold border border-green-500/30">ADMIN</span>}
+                </span>
                 <p className="text-brand-light/40 text-xs truncate">{member.email || 'Sem email'}</p>
               </div>
               <div className="absolute right-2 top-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button onClick={() => handleToggleAdmin(member)} className={`p-1.5 ${member.isAdmin ? 'text-green-500 hover:bg-green-500/10' : 'text-gray-400 hover:bg-gray-400/10'} rounded`} title={member.isAdmin ? "Remover Admin" : "Tornar Admin"}>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                </button>
                 <button onClick={() => handleOpenModal(member)} className="p-1.5 text-brand-gold hover:bg-brand-gold/10 rounded"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
                 <button onClick={() => handleDelete(member.id)} className="p-1.5 text-red-500 hover:bg-red-500/10 rounded"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
               </div>

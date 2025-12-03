@@ -14,7 +14,10 @@ import {
     doc,
     query,
     orderBy,
-    Timestamp
+    Timestamp,
+    where,
+    limit,
+    setDoc
 } from 'firebase/firestore';
 import { auth, db } from './firebaseConfig';
 import { ChurchEvent, Ministry, ChurchService, ChurchInfo, Congregation, Member } from '../types';
@@ -244,6 +247,17 @@ export const churchInfoData: ChurchInfo[] = [
         content: [
             { type: 'paragraph', text: 'Além da nossa sede, a IEAM se estende por outras localidades, levando a Palavra de Deus a mais corações. Conheça nossas congregações.' },
         ]
+    },
+    {
+        id: '8',
+        slug: 'jadiemi',
+        name: 'JADIEMI',
+        title: 'Junta Administrativa das Igrejas Evangélicas Apostólica Missionária',
+        bannerImage: 'https://images.pexels.com/photos/2608517/pexels-photo-2608517.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        content: [
+            { type: 'paragraph', text: 'A Junta Administrativa das Igrejas Evangélicas Apostólica Missionária (JADIEMI) é o órgão responsável pela gestão administrativa, financeira e patrimonial da denominação em nível nacional.' },
+            { type: 'paragraph', text: 'Composta por líderes experientes e comprometidos com a obra de Deus, a JADIEMI trabalha para garantir a transparência, a legalidade e o bom funcionamento de todas as congregações, oferecendo suporte e diretrizes para o crescimento saudável da igreja.' }
+        ]
     }
 ];
 
@@ -278,8 +292,17 @@ export const signUp = async (name: string, email: string, password: string) => {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        // You could store additional user info in Firestore here
-        // await setDoc(doc(db, 'users', user.uid), { name, email, role: 'member' });
+        // Create a member profile for the new user
+        const membersCol = collection(db, 'members');
+        const newMember: Omit<Member, 'id'> = {
+            uid: user.uid,
+            name: name,
+            email: email,
+            role: 'Membro', // Default role
+            photo: 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=random'
+        };
+
+        await addDoc(membersCol, newMember);
 
         return {
             user: {
@@ -409,7 +432,46 @@ export const deleteMember = async (id: string): Promise<void> => {
     }
 };
 
-// --- CONGREGATIONS (Firestore) ---
+export const getMemberByUserId = async (uid: string): Promise<Member | null> => {
+    try {
+        const membersCol = collection(db, 'members');
+        const q = query(membersCol, where('uid', '==', uid), limit(1));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+            const docSnapshot = querySnapshot.docs[0];
+            const memberData = { id: docSnapshot.id, ...docSnapshot.data() } as Member;
+
+            // MIGRATION: Auto-set isAdmin for the main admin email if not set
+            // This ensures the transition to DB-backed verification is smooth
+            if (memberData.email?.startsWith('admin') && !memberData.isAdmin) {
+                await updateDoc(doc(db, 'members', memberData.id), { isAdmin: true });
+                memberData.isAdmin = true;
+            }
+
+            return memberData;
+        }
+        return null;
+    } catch (error) {
+        console.error('Error fetching member by user ID:', error);
+        return null;
+    }
+};
+
+export const updateMemberProfile = async (uid: string, data: Partial<Member>): Promise<void> => {
+    try {
+        const member = await getMemberByUserId(uid);
+        if (member) {
+            const memberDoc = doc(db, 'members', member.id);
+            await updateDoc(memberDoc, data);
+        } else {
+            throw new Error('Membro não encontrado.');
+        }
+    } catch (error) {
+        console.error('Error updating member profile:', error);
+        throw error;
+    }
+};
 
 export const getCongregations = async (): Promise<Congregation[]> => {
     try {
