@@ -1,6 +1,7 @@
 export interface ChurchEvent {
   id: string;
   title: string;
+  slug: string;
   date: string;
   time: string;
   description: string;

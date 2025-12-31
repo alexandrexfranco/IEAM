@@ -385,6 +385,27 @@ export const deleteEvent = async (id: string): Promise<void> => {
     }
 };
 
+export const getEventBySlug = async (slug: string): Promise<ChurchEvent | null> => {
+    try {
+        const eventsCol = collection(db, 'events');
+        const q = query(eventsCol, where('slug', '==', slug), limit(1));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            return null;
+        }
+
+        const eventDoc = querySnapshot.docs[0];
+        return {
+            id: eventDoc.id,
+            ...eventDoc.data()
+        } as ChurchEvent;
+    } catch (error) {
+        console.error('Error fetching event by slug:', error);
+        return null;
+    }
+};
+
 // --- MEMBERS (Firestore) ---
 
 export const getMembers = async (): Promise<Member[]> => {

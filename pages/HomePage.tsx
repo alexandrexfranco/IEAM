@@ -6,12 +6,16 @@ import EventsSection from '../components/EventsSection';
 import ContactSection from '../components/ContactSection';
 import MapSection from '../components/MapSection';
 
-const HomePage: React.FC = () => {
+interface HomePageProps {
+  onNavigate: (page: string) => void;
+}
+
+const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   return (
     <>
       <HeroSection />
       <AboutSection />
-      <EventsSection />
+      <EventsSection onNavigate={onNavigate} />
       <ContactSection />
       <MapSection />
     </>

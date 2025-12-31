@@ -4,6 +4,10 @@ import { ChurchEvent } from '../types';
 import { getEvents } from '../services/firebaseService';
 import { motion } from 'framer-motion';
 
+interface EventsSectionProps {
+  onNavigate?: (page: string) => void;
+}
+
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -32,7 +36,7 @@ const formatDate = (dateString: string): string => {
   return dateString;
 };
 
-const EventsSection: React.FC = () => {
+const EventsSection: React.FC<EventsSectionProps> = ({ onNavigate }) => {
   const [events, setEvents] = useState<ChurchEvent[]>([]);
 
   useEffect(() => {
@@ -69,8 +73,10 @@ const EventsSection: React.FC = () => {
             {events.map((event) => (
               <motion.div
                 key={event.id}
-                className="bg-brand-dark border border-brand-gold/20 rounded-lg shadow-xl overflow-hidden flex flex-col group"
+                className="bg-brand-dark border border-brand-gold/20 rounded-lg shadow-xl overflow-hidden flex flex-col group cursor-pointer hover:border-brand-gold/50 transition-all"
                 variants={itemVariants}
+                onClick={() => onNavigate && event.slug && onNavigate(`evento/${event.slug}`)}
+                whileHover={{ y: -5 }}
               >
                 <div className="overflow-hidden">
                   <img src={event.image} alt={event.title} className="w-full h-56 object-cover transform group-hover:scale-105 transition-transform duration-500" />
@@ -82,8 +88,13 @@ const EventsSection: React.FC = () => {
                     <span className="mx-2">|</span>
                     <span>{event.time}</span>
                   </div>
-                  <p className="text-brand-light/80 mb-4 flex-grow whitespace-pre-line">{event.description}</p>
-                  <a href="#" className="mt-auto self-start font-bold text-brand-gold hover:underline">Saiba Mais</a>
+                  <p className="text-brand-light/80 mb-4 flex-grow line-clamp-3">{event.description}</p>
+                  <div className="mt-auto flex items-center gap-2 font-bold text-brand-gold group-hover:gap-3 transition-all">
+                    <span>Ver detalhes</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
                 </div>
               </motion.div>
             ))}

@@ -13,6 +13,7 @@ import AdminDashboardPage from './pages/AdminDashboardPage';
 import UserDashboardPage from './pages/UserDashboardPage';
 import BlogPage from './pages/BlogPage';
 import BlogPostPage from './pages/BlogPostPage';
+import EventDetailPage from './pages/EventDetailPage';
 import { motion, AnimatePresence } from 'framer-motion';
 import { onAuthStateChange } from './services/firebaseService';
 import type { User as FirebaseUser } from 'firebase/auth';
@@ -66,9 +67,13 @@ const App: React.FC = () => {
       const slug = currentPage.split('/')[1];
       return <BlogPostPage slug={slug} onNavigate={handleNavigate} />;
     }
+    if (currentPage.startsWith('evento/')) {
+      const slug = currentPage.split('/')[1];
+      return <EventDetailPage slug={slug} onNavigate={handleNavigate} />;
+    }
     switch (currentPage) {
       case 'home':
-        return <HomePage />;
+        return <HomePage onNavigate={handleNavigate} />;
       case 'about':
         return <AboutPage />;
       case 'login':

@@ -437,6 +437,7 @@ const EventsManager: React.FC = () => {
   const [editingEvent, setEditingEvent] = useState<ChurchEvent | null>(null);
   const [formData, setFormData] = useState({
     title: '',
+    slug: '',
     date: '',
     time: '',
     description: '',
@@ -456,12 +457,21 @@ const EventsManager: React.FC = () => {
     fetchEvents();
   }, []);
 
+  const generateSlug = (title: string) => {
+    return title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  };
+
+  const handleTitleChange = (title: string) => {
+    setFormData({ ...formData, title, slug: generateSlug(title) });
+  };
+
   const handleOpenModal = (event?: ChurchEvent) => {
     setSelectedFile(null);
     if (event) {
       setEditingEvent(event);
       setFormData({
         title: event.title,
+        slug: event.slug || generateSlug(event.title),
         date: event.date,
         time: event.time,
         description: event.description,
@@ -471,6 +481,7 @@ const EventsManager: React.FC = () => {
       setEditingEvent(null);
       setFormData({
         title: '',
+        slug: '',
         date: '',
         time: '',
         description: '',
@@ -575,7 +586,8 @@ const EventsManager: React.FC = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-brand-gold text-sm font-bold mb-1">Título</label>
-                  <input type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} className={inputStyles} required />
+                  <input type="text" value={formData.title} onChange={e => handleTitleChange(e.target.value)} className={inputStyles} required />
+                  <p className="text-xs text-brand-light/40 mt-1">Slug: {formData.slug}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
