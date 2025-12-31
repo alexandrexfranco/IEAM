@@ -62,3 +62,32 @@ export interface Member {
   photo?: string;
   isAdmin?: boolean; // Database-backed admin flag
 }
+
+export type PrayerRequestStatus = 'Pendente' | 'Em Oração' | 'Respondido';
+
+export interface PrayerRequest {
+  id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  request: string;
+  status: PrayerRequestStatus;
+  createdAt: string;
+  adminNotes?: string;
+}
+
+export type BlogCategory = 'Evento Realizado' | 'Notícia';
+
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  category: BlogCategory;
+  content: string;
+  coverImage: string;
+  images?: string[];
+  videoUrl?: string; // YouTube or Vimeo URL
+  publishedAt: string;
+  author: string;
+  tags?: string[];
+}

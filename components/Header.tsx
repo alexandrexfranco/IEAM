@@ -29,7 +29,25 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentUser }) => {
   useEffect(() => {
     const fetchMember = async () => {
       if (currentUser) {
-        const memberData = await getMemberByUserId(currentUser.uid);
+        let memberData = await getMemberByUserId(currentUser.uid);
+
+        // If member doesn't exist (e.g. created before migration), create it
+        if (!memberData) {
+          const newMember: Omit<Member, 'id'> & { uid: string } = {
+            uid: currentUser.uid,
+            name: currentUser.displayName || currentUser.email?.split('@')[0] || 'Usuário',
+            email: currentUser.email || '',
+            role: 'Membro',
+            photo: currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.email || 'User')}&background=random`
+          };
+          try {
+            const { createMember } = await import('../services/firebaseService');
+            memberData = await createMember(newMember);
+          } catch (e) {
+            console.error("Error auto-creating profile:", e);
+          }
+        }
+
         setMember(memberData);
       } else {
         setMember(null);
@@ -181,6 +199,8 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentUser }) => {
                 </div>
 
                 <a href="#" onClick={(e) => handleNavClick(e, 'schedule')} className="font-body text-sm font-medium text-brand-light hover:text-brand-gold transition-colors duration-300 cursor-pointer">Programação</a>
+                <a href="#" onClick={(e) => handleNavClick(e, 'blog')} className="font-body text-sm font-medium text-brand-light hover:text-brand-gold transition-colors duration-300 cursor-pointer">Blog</a>
+                <a href="#" onClick={(e) => handleNavClick(e, 'prayer-request')} className="font-body text-sm font-medium text-brand-light hover:text-brand-gold transition-colors duration-300 cursor-pointer">Pedidos de Oração</a>
                 <a href="#eventos" onClick={(e) => handleNavClick(e, 'home', '#eventos')} className="font-body text-sm font-medium text-brand-light hover:text-brand-gold transition-colors duration-300 cursor-pointer">Eventos</a>
                 <a href="#contato" onClick={(e) => handleNavClick(e, 'home', '#contato')} className="font-body text-sm font-medium text-brand-light hover:text-brand-gold transition-colors duration-300 cursor-pointer">Contato</a>
               </nav>
@@ -190,7 +210,10 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentUser }) => {
                 </Button>
                 {currentUser ? (
                   <div className="relative" onMouseEnter={() => setIsUserMenuOpen(true)} onMouseLeave={() => setIsUserMenuOpen(false)}>
-                    <button className="flex items-center gap-2 focus:outline-none">
+                    <button
+                      onClick={() => onNavigate('dashboard')}
+                      className="flex items-center gap-2 focus:outline-none hover:opacity-80 transition-opacity cursor-pointer"
+                    >
                       <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-brand-gold">
                         <img
                           src={member?.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(member?.name || currentUser.email || 'User')}&background=random`}
@@ -207,18 +230,13 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentUser }) => {
                           exit={{ opacity: 0, y: 10 }}
                           className="absolute top-full right-0 mt-2 w-48 bg-brand-dark/90 backdrop-blur-sm shadow-lg rounded-md py-2 z-50 border border-brand-gold/20"
                         >
-                          <div className="px-4 py-2 border-b border-brand-gold/10 mb-2">
+                          <button
+                            onClick={() => onNavigate('dashboard')}
+                            className="w-full px-4 py-2 border-b border-brand-gold/10 mb-2 text-left hover:bg-brand-gold/10 transition-colors"
+                          >
                             <p className="text-sm font-bold text-brand-light truncate">{member?.name || 'Usuário'}</p>
                             <p className="text-xs text-brand-light/60 truncate">{currentUser.email}</p>
-                          </div>
-
-                          <a
-                            href="#"
-                            onClick={(e) => handleNavClick(e, 'dashboard')}
-                            className="block px-4 py-2 text-sm text-brand-light hover:bg-brand-gold hover:text-brand-dark transition-colors duration-200"
-                          >
-                            Meu Perfil
-                          </a>
+                          </button>
 
                           {member?.isAdmin && (
                             <a
@@ -319,6 +337,8 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentUser }) => {
               </div>
 
               <a href="#" onClick={(e) => handleNavClick(e, 'schedule')} className="text-brand-light hover:text-brand-gold transition-colors">Programação</a>
+              <a href="#" onClick={(e) => handleNavClick(e, 'blog')} className="text-brand-light hover:text-brand-gold transition-colors">Blog</a>
+              <a href="#" onClick={(e) => handleNavClick(e, 'prayer-request')} className="text-brand-light hover:text-brand-gold transition-colors">Pedidos de Oração</a>
               <a href="#eventos" onClick={(e) => handleNavClick(e, 'home', '#eventos')} className="text-brand-light hover:text-brand-gold transition-colors">Eventos</a>
               <a href="#contato" onClick={(e) => handleNavClick(e, 'home', '#contato')} className="text-brand-light hover:text-brand-gold transition-colors">Contato</a>
 
@@ -326,7 +346,10 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentUser }) => {
                 <Button onClick={() => handleNavClick(null, 'donation')} variant="solid">Doar</Button>
                 {currentUser ? (
                   <>
-                    <div className="flex items-center gap-3 px-2 py-2 border-b border-brand-gold/10 mb-2">
+                    <button
+                      onClick={() => handleNavClick(null, 'dashboard')}
+                      className="flex items-center gap-3 px-2 py-2 border-b border-brand-gold/10 mb-2 hover:bg-brand-gold/10 transition-colors rounded cursor-pointer"
+                    >
                       <div className="w-10 h-10 rounded-full overflow-hidden border border-brand-gold">
                         <img
                           src={member?.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(member?.name || currentUser.email || 'User')}&background=random`}
@@ -334,12 +357,11 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentUser }) => {
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <div>
+                      <div className="text-left">
                         <p className="text-sm font-bold text-brand-light">{member?.name || 'Usuário'}</p>
                         <p className="text-xs text-brand-light/60">{currentUser.email}</p>
                       </div>
-                    </div>
-                    <Button onClick={() => handleNavClick(null, 'dashboard')} variant="outline">Meu Perfil</Button>
+                    </button>
                     {member?.isAdmin && (
                       <Button onClick={() => handleNavClick(null, 'admin/dashboard')} variant="outline" className="!text-brand-gold !border-brand-gold">Painel Admin</Button>
                     )}

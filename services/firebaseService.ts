@@ -23,7 +23,7 @@ import {
     setDoc
 } from 'firebase/firestore';
 import { auth, db } from './firebaseConfig';
-import { ChurchEvent, Ministry, ChurchService, ChurchInfo, Congregation, Member } from '../types';
+import { ChurchEvent, Ministry, ChurchService, ChurchInfo, Congregation, Member, PrayerRequest, BlogPost } from '../types';
 
 // --- STATIC DATA (Ministries, Church Info, Schedule) ---
 // These remain as static data since they don't change frequently
@@ -295,17 +295,16 @@ export const signUp = async (name: string, email: string, password: string) => {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        // Create a member profile for the new user
-        const membersCol = collection(db, 'members');
-        const newMember: Omit<Member, 'id'> = {
-            uid: user.uid,
+        // Create a member profile using uid as document ID
+        const newMember: Omit<Member, 'id' | 'uid'> = {
             name: name,
             email: email,
             role: 'Membro', // Default role
             photo: 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=random'
         };
 
-        await addDoc(membersCol, newMember);
+        // Use setDoc with uid as document ID instead of addDoc
+        await setDoc(doc(db, 'members', user.uid), newMember);
 
         return {
             user: {
@@ -403,11 +402,12 @@ export const getMembers = async (): Promise<Member[]> => {
     }
 };
 
-export const createMember = async (member: Omit<Member, 'id'>): Promise<Member> => {
+export const createMember = async (member: Omit<Member, 'id'> & { uid: string }): Promise<Member> => {
     try {
-        const membersCol = collection(db, 'members');
-        const docRef = await addDoc(membersCol, member);
-        return { ...member, id: docRef.id };
+        // Use uid as document ID
+        const { uid, ...memberData } = member;
+        await setDoc(doc(db, 'members', uid), memberData);
+        return { ...memberData, id: uid };
     } catch (error) {
         console.error('Error creating member:', error);
         throw new Error('Erro ao criar membro.');
@@ -416,8 +416,10 @@ export const createMember = async (member: Omit<Member, 'id'>): Promise<Member> 
 
 export const updateMember = async (member: Member): Promise<Member> => {
     try {
-        const memberDoc = doc(db, 'members', member.id);
-        await updateDoc(memberDoc, { ...member });
+        // member.id is the uid
+        const { id, ...memberData } = member;
+        const memberDoc = doc(db, 'members', id);
+        await updateDoc(memberDoc, memberData);
         return member;
     } catch (error) {
         console.error('Error updating member:', error);
@@ -437,18 +439,21 @@ export const deleteMember = async (id: string): Promise<void> => {
 
 export const getMemberByUserId = async (uid: string): Promise<Member | null> => {
     try {
-        const membersCol = collection(db, 'members');
-        const q = query(membersCol, where('uid', '==', uid), limit(1));
-        const querySnapshot = await getDocs(q);
+        // Direct lookup using uid as document ID
+        const memberDoc = doc(db, 'members', uid);
+        const docSnapshot = await getDocs(query(collection(db, 'members'), where('__name__', '==', uid), limit(1)));
 
-        if (!querySnapshot.empty) {
-            const docSnapshot = querySnapshot.docs[0];
-            const memberData = { id: docSnapshot.id, ...docSnapshot.data() } as Member;
+        // Simpler approach: just get the document directly
+        const docRef = doc(db, 'members', uid);
+        const snapshot = await getDocs(query(collection(db, 'members')));
+        const foundDoc = snapshot.docs.find(d => d.id === uid);
+
+        if (foundDoc && foundDoc.exists()) {
+            const memberData = { id: foundDoc.id, ...foundDoc.data() } as Member;
 
             // MIGRATION: Auto-set isAdmin for the main admin email if not set
-            // This ensures the transition to DB-backed verification is smooth
             if (memberData.email?.startsWith('admin') && !memberData.isAdmin) {
-                await updateDoc(doc(db, 'members', memberData.id), { isAdmin: true });
+                await updateDoc(doc(db, 'members', uid), { isAdmin: true });
                 memberData.isAdmin = true;
             }
 
@@ -592,3 +597,126 @@ export const getChurchInfoBySlug = (slug: string): ChurchInfo | undefined => {
 export const getSchedule = async (): Promise<ChurchService[]> => {
     return scheduleData;
 };
+
+// --- PRAYER REQUESTS (Firestore) ---
+
+export const getPrayerRequests = async (): Promise<PrayerRequest[]> => {
+    try {
+        const prayerRequestsCol = collection(db, 'prayerRequests');
+        const q = query(prayerRequestsCol, orderBy('createdAt', 'desc'));
+        const prayerRequestsSnapshot = await getDocs(q);
+        const prayerRequests = prayerRequestsSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        } as PrayerRequest));
+        return prayerRequests;
+    } catch (error) {
+        console.error('Error fetching prayer requests:', error);
+        return [];
+    }
+};
+
+export const createPrayerRequest = async (prayerRequest: Omit<PrayerRequest, 'id'>): Promise<PrayerRequest> => {
+    try {
+        const prayerRequestsCol = collection(db, 'prayerRequests');
+        const docRef = await addDoc(prayerRequestsCol, {
+            ...prayerRequest,
+            createdAt: new Date().toISOString(),
+            status: 'Pendente'
+        });
+        return { ...prayerRequest, id: docRef.id };
+    } catch (error) {
+        console.error('Error creating prayer request:', error);
+        throw new Error('Erro ao criar pedido de oração.');
+    }
+};
+
+export const updatePrayerRequest = async (prayerRequest: PrayerRequest): Promise<PrayerRequest> => {
+    try {
+        const prayerRequestDoc = doc(db, 'prayerRequests', prayerRequest.id);
+        await updateDoc(prayerRequestDoc, { ...prayerRequest });
+        return prayerRequest;
+    } catch (error) {
+        console.error('Error updating prayer request:', error);
+        throw new Error('Erro ao atualizar pedido de oração.');
+    }
+};
+
+export const deletePrayerRequest = async (id: string): Promise<void> => {
+    try {
+        const prayerRequestDoc = doc(db, 'prayerRequests', id);
+        await deleteDoc(prayerRequestDoc);
+    } catch (error) {
+        console.error('Error deleting prayer request:', error);
+        throw new Error('Erro ao deletar pedido de oração.');
+    }
+};
+
+// --- BLOG POSTS (Firestore) ---
+
+export const getPosts = async (): Promise<BlogPost[]> => {
+    try {
+        const postsCol = collection(db, 'posts');
+        const q = query(postsCol, orderBy('publishedAt', 'desc'));
+        const postsSnapshot = await getDocs(q);
+        const posts = postsSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        } as BlogPost));
+        return posts;
+    } catch (error) {
+        console.error('Error fetching posts:', error);
+        return [];
+    }
+};
+
+export const createPost = async (post: Omit<BlogPost, 'id'>): Promise<BlogPost> => {
+    try {
+        const postsCol = collection(db, 'posts');
+        const docRef = await addDoc(postsCol, post);
+        return { ...post, id: docRef.id };
+    } catch (error) {
+        console.error('Error creating post:', error);
+        throw new Error('Erro ao criar post.');
+    }
+};
+
+export const updatePost = async (post: BlogPost): Promise<BlogPost> => {
+    try {
+        const { id, ...postData } = post;
+        const postDoc = doc(db, 'posts', id);
+        await updateDoc(postDoc, postData);
+        return post;
+    } catch (error) {
+        console.error('Error updating post:', error);
+        throw new Error('Erro ao atualizar post.');
+    }
+};
+
+export const deletePost = async (id: string): Promise<void> => {
+    try {
+        const postDoc = doc(db, 'posts', id);
+        await deleteDoc(postDoc);
+    } catch (error) {
+        console.error('Error deleting post:', error);
+        throw new Error('Erro ao deletar post.');
+    }
+};
+
+export const getPostBySlug = async (slug: string): Promise<BlogPost | null> => {
+    try {
+        const postsCol = collection(db, 'posts');
+        const q = query(postsCol, where('slug', '==', slug), limit(1));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+            const docSnapshot = querySnapshot.docs[0];
+            return { id: docSnapshot.id, ...docSnapshot.data() } as BlogPost;
+        }
+        return null;
+    } catch (error) {
+        console.error('Error fetching post by slug:', error);
+        return null;
+    }
+};
+

@@ -11,6 +11,8 @@ import DonationPage from './pages/DonationPage';
 import CongregationsPage from './pages/CongregationsPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import UserDashboardPage from './pages/UserDashboardPage';
+import BlogPage from './pages/BlogPage';
+import BlogPostPage from './pages/BlogPostPage';
 import { motion, AnimatePresence } from 'framer-motion';
 import { onAuthStateChange } from './services/firebaseService';
 import type { User as FirebaseUser } from 'firebase/auth';
@@ -60,6 +62,10 @@ const App: React.FC = () => {
       const slug = currentPage.split('/')[1];
       return <ChurchInfoPage slug={slug} />;
     }
+    if (currentPage.startsWith('blog/')) {
+      const slug = currentPage.split('/')[1];
+      return <BlogPostPage slug={slug} onNavigate={handleNavigate} />;
+    }
     switch (currentPage) {
       case 'home':
         return <HomePage />;
@@ -76,6 +82,8 @@ const App: React.FC = () => {
         return <AdminDashboardPage onNavigate={handleNavigate} />;
       case 'dashboard':
         return <UserDashboardPage />;
+      case 'blog':
+        return <BlogPage onNavigate={handleNavigate} />;
       default:
         return <HomePage />;
     }
